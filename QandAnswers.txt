@@ -1,0 +1,9 @@
+﻿To do:
+
+Odd number of filter taps so we can drop the same amount at start and end.
+
+Use tips from slide 19 to differentiate between pam, qam, bpsk (= 2 bit pam)
+
+Do you mean where this is implemented in code or how in general we would implement it? Optimisation in theory? → Yes
+
+Higher beta means, higher attenuation of the sidelobes in the time domain. If the sidelobes decay faster you will need fewer filter taps to rep
