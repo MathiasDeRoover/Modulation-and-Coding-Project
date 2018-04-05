@@ -12,11 +12,11 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 
 %% Execution
 
-bitStream = CreateBitStream(1,5);
+bitStream = CreateBitStream(1e4,5);
 bitStream_enc = LDPC_encoder_lite( bitStream, H );
 %noise = rand(1,numel(bitStream_enc))'>0.8;
 
-bitStream_enc'
+%bitStream_enc'
 
 %bitStream_enc = mod(bitStream_enc+noise,2);
 bitStream_enc(3:10:end) = ~bitStream_enc(3:10:end);
