@@ -25,6 +25,22 @@ if mod(numel(bitStream),bps) ~= 0
 end
 
 symStream = mapping(bitStream, bps, modulation);
+% %Plotting constellations
+% 
+% 
+% figure
+% plot(real(symStream),imag(symStream),'o')
+% xlabel('Re(symStream)')
+% ylabel('Im(symStream)')
+% title(['Constellation:' modu])
+% 
+% figure
+% plot(real(symStream),round(imag(symStream)),'o')
+% xlabel('Re(symStream)')
+% ylabel('Im(symStream)')
+% title(['Constellation:' modu])
+
+
 supStream = upsample(symStream,M);
 sgStream  = conv(supStream,g);
 
