@@ -7,19 +7,20 @@ addpath(genpath(pwd))
 H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
         0 1 1 0 1 1 1 0 0 0;        %   This matrix is sparse,
         0 0 0 1 0 0 0 1 1 1;        %   it exists out of a lot
-        1 1 0 0 0 1 1 0 1 0;        %   of zeros and ones.
+        1 1 0 0 0 1 1 0 1 0;        %   of zeros and a few ones.
         0 0 1 0 0 1 0 1 0 1;   ];   %
 
 %% Execution
-
-bitStream = CreateBitStream(1e4,5);
+N = 1;
+bps = 5;
+bitStream = CreateBitStream(N,bps);
 bitStream_enc = LDPC_encoder_lite( bitStream, H );
 %noise = rand(1,numel(bitStream_enc))'>0.8;
 
-%bitStream_enc'
+% bitStream_enc'
 
 %bitStream_enc = mod(bitStream_enc+noise,2);
-bitStream_enc(3:10:end) = ~bitStream_enc(3:10:end);
+bitStream_enc(3:10:end) = ~bitStream_enc(3:10:end);         % Add some biterrors manually
 bitStream_rec = LDPC_decoder_hard_lite( bitStream_enc, H );
 
 %% Plotting results
