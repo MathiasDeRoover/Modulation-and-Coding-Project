@@ -1,4 +1,4 @@
-function [ bitStream_enc] = LDPC_encoder_lite( bitStream, H )
+function [ bitStream_enc , newH] = LDPC_encoder_lite( bitStream, H )
 %LDPC_encoder_lite LDPC encoder for small size blocks
 %   LDPC encoder for small size blocks. Useful to study the main properties
 %   of LDPC encoders.
@@ -25,5 +25,5 @@ for i = 1:L
 end
 bitStream_enc_block = bitStream_enc_block';
 bitStream_enc = bitStream_enc_block(:); 
-
+newH = H;
 end
