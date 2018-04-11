@@ -11,24 +11,24 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
         0 0 1 0 0 1 0 1 0 1;   ];   %
 
 %% Step 1
-% N = 1e2;
-% bps = 5;
-% bitStream = CreateBitStream(N,bps);
-% [bitStream_enc,newH] = LDPC_encoder_lite( bitStream, H );
-% % noise = rand(1,numel(bitStream_enc))'>0.99;
-% 
-% % bitStream_enc'
-% 
-% % bitStream_enc = mod(bitStream_enc+noise,2);
-% bitStream_enc(8:10:end) = ~bitStream_enc(10:10:end);         % Add some biterrors manually
-% 
-% tic
+N = 1e2;
+bps = 4;
+bitStream = CreateBitStream(N,bps);
+[bitStream_enc,newH] = LDPC_encoder_lite( bitStream, H );
+% noise = rand(1,numel(bitStream_enc))'>0.99;
+
+% bitStream_enc'
+
+% bitStream_enc = mod(bitStream_enc+noise,2);
+bitStream_enc(8:10:end) = ~bitStream_enc(10:10:end);         % Add some biterrors manually
+
+tic
 % bitStream_rec = LDPC_decoder_hard( bitStream_enc, newH );
-% toc
-% 
-% tic
-% %bitStream_rec = LDPC_decoder_hard_lite( bitStream_enc, newH );
-% toc
+toc
+
+tic
+bitStream_rec = LDPC_decoder_hard_lite( bitStream_enc, H );
+toc
 
 %% Step 2
 % N                           = 50;
@@ -49,15 +49,15 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 % toc
 
 %% Step 3
-N                           = 1;
-c_length                    = 5;
-v_length                    = 10;
-bitStream                   = CreateBitStream(N,c_length);
-[bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H );
-
-tic
-bitStream_rec = LDPC_decoder_soft( bitStream_enc, newH );
-toc
+% N                           = 1;
+% c_length                    = 5;
+% v_length                    = 10;
+% bitStream                   = CreateBitStream(N,c_length);
+% [bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H );
+% 
+% tic
+% bitStream_rec = LDPC_decoder_soft( bitStream_enc, newH );
+% toc
 
 %% Plotting results
 
