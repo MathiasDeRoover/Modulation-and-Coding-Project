@@ -10,7 +10,7 @@ sig = 0.5;
 q1 = zeros(i_num,j_num);
 for i = 1:i_num
     for j = 1:j_num
-        q1(i,j) = 1 / (1 + exp(2 * y(i) / sig^2));
+        q1(i,j) = 1 / (1 + exp(-2 * y(i) / sig^2));
     end
 end
 q0 = 1-q1;
@@ -24,8 +24,8 @@ while iterate
     
     % Step2: The check nodes calculate their response messages rji.
     % They calculate the probability that there is an even number
-    % of 1’s among the variable nodes except ci.This probability
-    % is equal to the probability rji(0) that ciis a 0.
+    % of 1’s among the variable nodes except ci. This probability
+    % is equal to the probability rji(0) that ci is a 0.
     r0 = zeros(j_num,i_num);
     for i = 1:i_num
         for j = 1:j_num
@@ -37,7 +37,7 @@ while iterate
     r1 = 1-r0;
     
     % Step3: The variable nodes update their response messages to the
-    % check nodes.Ci\jmeans all check nodes except fj.
+    % check nodes. Ci\j means all check nodes except fj.
     K = zeros(i_num,j_num);
     for i = 1:i_num
         for j = 1:j_num
@@ -49,7 +49,7 @@ while iterate
         end
     end
     
-    % Step4: Soft decision using piand the rij
+    % Step4: Soft decision using pi and the rij
     Q1 = zeros(1,i_num);
     Q0 = zeros(1,i_num);
     for i = 1:i_num
@@ -74,7 +74,7 @@ while iterate
     end
 end
 
-bitStream = c;
+bitStream = c';
 
 end
 

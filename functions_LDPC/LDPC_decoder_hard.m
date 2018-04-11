@@ -4,7 +4,7 @@ function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H )
 %   go fast and be pretty optimized.
 [c_num,v_num]       = size(H);
 bitstrm_enc_rshp    = reshape(bitStream_enc,v_num,[])';
-H                   = reshape(H',1,v_num,[]);
+H                   = reshape(H',1,v_num,[]);                               % Why do you make dimensions 1x256x128?
 
 v_nodes             = bitstrm_enc_rshp;
 v_nodes_old         = inf(size(v_nodes));
