@@ -75,12 +75,12 @@ ylabel('h(t)')
 hold off
 subplot(2,2,3) %plot3
 plot(plot_t,plot_g);
-title("g(t)")
+title('g(t)')
 xlabel('time [s]')
 ylabel('g(t)')
 subplot(2,2,4) %plot4
 plot(plot_t,plot_gmin);
-title("g(-t)")
+title('g(-t)')
 xlabel('time [s]')
 ylabel('g(-t)')
 %%%
@@ -155,3 +155,7 @@ title('Original bitsream minus Recovered bitstream')
 xlabel('time [s]')
 ylabel('Correct if = 0')
 %%%
+
+
+%% Github commit testing with testBranchJohan
+
