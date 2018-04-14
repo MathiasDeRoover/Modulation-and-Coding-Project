@@ -1,4 +1,4 @@
-function [ BERratio ] = BERcalc_LDPC(N,ftaps,modu,M,fs,g,EbN0_array,current_loop,number_of_loops )
+function [ BERratio ] = BERcalc_LDPC(N,ftaps,modu,M,fs,g,EbN0_array,iteration_limit )
 %Based on modulation type and SNR ratio, the function returns the BER.
 
 %% Tranceiver
@@ -20,24 +20,39 @@ switch modu
 end
 
 bitStream = CreateBitStream(N,bps);
+
 if mod(numel(bitStream),bps) ~= 0
     error('Number of bits not a multiple of bps');
 end
 
-symStream = mapping(bitStream, bps, modulation);
+%Encoding
+v_length                    = N;
+c_length                    = N/2;
+
+H0                          = makeLdpc(c_length,v_length,0,1,3);            % Create initial parity check matrix of size 128 x 256
+
+tic
+bitStream_blk               = reshape(bitStream,c_length,[]);
+[bitStream_cod_blk,newH]    = makeParityChk(bitStream_blk, H0, 0);          % Create parity check bits and reshape H
+bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Unite parity check bits and message
+bitStream_cod               = reshape(bitStream_cod_blk,[],1);      
+
+%Rest of channel
+symStream = mapping(bitStream_cod, bps, modulation);
 supStream = upsample(symStream,M);
 sgStream  = conv(supStream,g);
 
 
 
 %% Ideal Channel
-SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);        % Total signal energy (this is given in slides) %Trapz is integral approx.
+%Do we have to use sgStream or bitStream? (encoded vs unencoded)
+%SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs); % Total signal energy (this is given in slides) %Trapz is integral approx.
+SignalEnergy = (trapz(abs(bitStream).^2))*(1/fs); 
 Eb = SignalEnergy /(numel(bitStream));
 Eb = Eb/2;
 
 %%% Calculating BER for every EbN0 in EbN0_array
 BERratio = zeros(1,numel(EbN0_array));
-wait_bar = waitbar(0,['Executing loop ',num2str(current_loop),'/',num2str(number_of_loops),' ',modu,'...']);
 for i = 1:numel(EbN0_array)
     EbN0 = EbN0_array(i);
     
@@ -60,9 +75,13 @@ for i = 1:numel(EbN0_array)
     shsStream = sggStream(1:M:end);                         % Sampling at nT
     recStream = demapping(shsStream, bps, modulation);      % Demapping
     
-    [~,BERratio(i)]=biterr(recStream,bitStream);
-    waitbar(i/numel(EbN0_array),wait_bar);
+    %Decoder
+    bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit); 
+    %BER
+    
+    [~,BERratio(i)]=biterr(bitStream_rec,bitStream);
+
 end
-close(wait_bar)
+
 end
 

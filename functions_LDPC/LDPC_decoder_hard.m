@@ -1,4 +1,4 @@
-function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H )
+function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit )
 %LDPC_DECODER_HARD Decode LDPC encoding.
 %   Decode LDPC encoding using a hard decoding scheme. This method should
 %   go fast and be pretty optimized.
@@ -9,7 +9,11 @@ H                   = reshape(H',1,v_num,[]);                               % Wh
 v_nodes             = bitstrm_enc_rshp;
 v_nodes_old         = inf(size(v_nodes));
 while_it            = 0;
-while_it_limit      = 10;
+if ~exist('while_it_limit','var')
+        while_it_limit      = 10;
+else 
+        while_it_limit=while_it_limit;
+end
 while (while_it ~= while_it_limit) && any(any(v_nodes - v_nodes_old))
     while_it        = while_it + 1;
     c_nodes         = mod(sum(v_nodes & H,2),2);
