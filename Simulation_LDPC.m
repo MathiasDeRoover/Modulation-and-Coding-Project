@@ -12,8 +12,8 @@ beta     = 0.3;              % Roll off factor
 M = 4;
 
 % Limit for the nr of iterations:
-%iterations=[1 5 20 100 2000 20000];
-iterations=1;
+iterations=[1 5 20 100 2000 20000];
+%iterations=1;
 
 SNRdb   = linspace(-20,20,500);
 SNR     = db2mag(2*SNRdb);      %takes db:20log10(x) and we have power so it should be 10log10(x)
@@ -115,5 +115,57 @@ semilogy(SNRdb,Qam64array_LDPC(1,:));
 legend('No LDPC','Hard decoding')
 title('64QAM')
 
+figure
+subplot(2,2,1)
+legent=[]; %Legend entries
+for i=1:numel(iterations)
+    semilogy(SNRdb,BPSKarray_LDPC(i,:));
+    hold on
+    legent{i}=[num2str(iterations(i))];
+end  
+hold off
+title('BPSK for increasing iteration limit')
+legend(legent)
+xlabel('SNR=E_b/N_0(dB)')
+ylabel('BER')
+
+subplot(2,2,2)
+legent=[] ;
+for i=1:numel(iterations)
+    semilogy(SNRdb,QPSKarray_LDPC(i,:));
+    hold on
+    legent{i}=[num2str(iterations(i))];
+end
+legend(legent)
+title('QPSK for increasing iteration limit')
+hold off
+xlabel('SNR=E_b/N_0(dB)')
+ylabel('BER')
+
+subplot(2,2,3)
+legent=[] ;
+for i=1:numel(iterations)
+    semilogy(SNRdb,Qam16array_LDPC(i,:));
+    hold on
+    legent{i}=[num2str(iterations(i))];
+end
+legend(legent)
+title('16QAM for increasing iteration limit')
+hold off
+xlabel('SNR=E_b/N_0(dB)')
+ylabel('BER')
+
+subplot(2,2,4)
+legent=[] ;
+for i=1:numel(iterations)
+    semilogy(SNRdb,Qam64array_LDPC(i,:));
+    hold on
+    legent{i}=[num2str(iterations(i))];
+end
+legend(legent)
+title('64QAM for increasing iteration limit')
+hold off
+xlabel('SNR=E_b/N_0(dB)')
+ylabel('BER')
 
 rmpath(genpath(pwd))
