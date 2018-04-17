@@ -17,10 +17,10 @@ while (while_it ~= while_it_limit) && any(any(v_nodes - v_nodes_old))
     
     c_xor_v         = xor( v_nodes , c_nodes );
     c_xor_v_masked  = c_xor_v & H;
-    avarage         = ( sum(c_xor_v_masked,3) + bitstrm_enc_rshp ) ./ ( sum(H,3) + 1 );
-    avarage_mask    = avarage==0.5;
+    average         = ( sum(c_xor_v_masked,3) + bitstrm_enc_rshp ) ./ ( sum(H,3) + 1 );
+    average_mask    = average==0.5;
     v_nodes_old     = v_nodes;
-    v_nodes         = and(round(avarage),~avarage_mask) + and(bitstrm_enc_rshp,avarage_mask);
+    v_nodes         = and(round(average),~average_mask) + and(bitstrm_enc_rshp,average_mask);
 end
 bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
 end
