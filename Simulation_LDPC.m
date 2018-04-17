@@ -4,7 +4,7 @@ close all
 clc
 addpath(genpath(pwd))
 
-N        = 1e3;              % Amount of Symbols
+N        = 1213;              % Amount of Symbols
 window_N = 10;               % Time axis window = window_N * T
 symRate  = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T        = 1/symRate;        % Symbol period
@@ -12,10 +12,11 @@ beta     = 0.3;              % Roll off factor
 M = 4;
 
 % Limit for the nr of iterations:
-iterations=[1 5 20 100 2000 20000];
-%iterations=1;
+% iterations=[1 5 20 100 2000 20000];
+iterations=1;
 
 SNRdb   = linspace(-20,20,500);
+% SNRdb   = 60;
 SNR     = db2mag(2*SNRdb);      %takes db:20log10(x) and we have power so it should be 10log10(x)
 
 BPSKarray  = cell(numel(M),1);  % Initializing the data cell arrays
@@ -30,7 +31,7 @@ tic
 
 fs=symRate .* M;
 
-%-- Filter desgin for specific M --%
+%-- Filter design for specific M --%
 ftaps = window_N*M(j);                              % Amount of causal (and non causal) filter taps
 H = RRCFilter( T,fs,beta,ftaps )';                  % Creating the window
 h = ifft(H,'symmetric');                            % Transforming to the time domain
@@ -40,7 +41,7 @@ H = fft(h);                                         % Transforming the normalize
 G = sqrt(H);                                        % G is the square root of H so that G*G = H (after the convolutions)
 g = fftshift(ifft(G,'symmetric'));                  % Transform G to the time domain. Fftshift is needed to get a proper raised cosine
 
-plotFilter( fs,h,H,G,M,ftaps )                   % Plot H,h,G and g
+% plotFilter( fs,h,H,G,M,ftaps )                   % Plot H,h,G and g
 
 %-- Calculating BER without LDPC --%
 BPSKarray=BERcalc(N,ftaps,'BPSK',M,fs,g,SNR, 1, numel(M));
@@ -86,7 +87,7 @@ hold off
 xlabel('SNR=Eb/N0(dB)')
 ylabel('BER')
 legend('BPSK','QPSK','Qam16','Qam64')
-title(['BER for different constallations and M= ' num2str(M) ' with LDPC, hard decoding'])
+title(['BER for different constallations and M = ' num2str(M) ' with LDPC, hard decoding'])
 
 
 figure

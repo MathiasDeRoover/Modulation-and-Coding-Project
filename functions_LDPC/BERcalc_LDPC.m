@@ -26,8 +26,20 @@ if mod(numel(bitStream),bps) ~= 0
 end
 
 %Encoding
-v_length                    = N;
-c_length                    = N/2;
+% v_length                    = N;
+% c_length                    = N/2;
+v_length                    = 256;
+c_length                    = 128;
+
+zerosToPad = c_length - mod(length(bitStream),c_length);
+if (zerosToPad ~= 0)
+%     disp('We need to pad some zeros')
+    bitStream = [bitStream; zeros(zerosToPad,1)];
+    while mod(numel(bitStream),bps) ~= 0                % Infinite loops should not happen, but be careful!
+        bitStream = [bitStream; zeros(c_length,1)];
+        zerosToPad = zerosToPad + c_length;
+    end
+end
 
 H0                          = makeLdpc(c_length,v_length,0,1,3);            % Create initial parity check matrix of size 128 x 256
 
@@ -38,6 +50,9 @@ bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Un
 bitStream_cod               = reshape(bitStream_cod_blk,[],1);      
 
 %Rest of channel
+% Remove padding after encoding
+bitStream_cod = bitStream_cod(1:end-zerosToPad);
+
 symStream = mapping(bitStream_cod, bps, modulation);
 supStream = upsample(symStream,M);
 sgStream  = conv(supStream,g);
@@ -76,9 +91,11 @@ for i = 1:numel(EbN0_array)
     recStream = demapping(shsStream, bps, modulation);      % Demapping
     
     %Decoder
-    bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit); 
+    bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit,bps); 
     %BER
-    
+    result = bitStream_rec ~= bitStream;
+%     figure % MAKE SURE YOU COMPUTE FOR 1 SNR
+%     stem(result)
     [~,BERratio(i)]=biterr(bitStream_rec,bitStream);
 
 end

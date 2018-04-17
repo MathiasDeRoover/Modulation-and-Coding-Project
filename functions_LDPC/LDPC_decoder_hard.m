@@ -1,8 +1,24 @@
-function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit )
+function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit,bps )
 %LDPC_DECODER_HARD Decode LDPC encoding.
 %   Decode LDPC encoding using a hard decoding scheme. This method should
 %   go fast and be pretty optimized.
 [c_num,v_num]       = size(H);
+
+
+
+%%%
+zerosToPad = c_num - mod(length(bitStream_enc),c_num);
+if (zerosToPad ~= 0)
+%     disp('We need to pad some zeros')
+    bitStream_enc = [bitStream_enc; zeros(zerosToPad,1)];
+    while mod(numel(bitStream_enc),bps) ~= 0                % Infinite loops should not happen, but be careful!
+        bitStream_enc = [bitStream_enc; zeros(c_num,1)];
+        zerosToPad = zerosToPad + c_num;
+    end
+end
+%%%
+
+
 bitstrm_enc_rshp    = reshape(bitStream_enc,v_num,[])';
 H                   = reshape(H',1,v_num,[]);                               % Why do you make dimensions 1x256x128?
 
