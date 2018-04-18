@@ -55,18 +55,12 @@ toc(start)
 %%%
 
 %% Filtering results for comparison with theory
-bla=10;
-filt = 1/bla*ones(1,bla);
+filt = 1/5*[1 1 1 1 1];
 BPSK_fil =filter(filt,1,BPSKarray{1});
 QPSK_fil = filter(filt,1,QPSKarray{1});
 Qam16_fil = filter(filt,1,Qam16array{1});
 Qam64_fil = filter(filt,1,Qam64array{1});
 
-%Restore first 4 elements
-BPSK_fil(1:bla)=BPSKarray{1}(1:bla);
-QPSK_fil(1:bla)=QPSKarray{1}(1:bla);
-Qam16_fil(1:bla)=Qam16array{1}(1:bla);
-Qam64_fil(1:bla)=Qam64array{1}(1:bla);
 %% Plotting the graphs 
 figure
 subplot(2,2,1)
@@ -111,7 +105,8 @@ hold off
 xlabel('SNR=Eb/N0(dB)')
 ylabel('BER')
 legend('BPSK','QPSK','Qam16','Qam64')
-title({'BER for different constellations,',['upsampling rate = ' num2str(M(1))]})
+title(['BER for different constellations, upsampling rate = ' num2str(M(1))])
+
 
 % Plot of BER compared with theory
 figure
@@ -122,12 +117,12 @@ semilogy(SNRdb,QPSK_fil,'Color',[0.80 0.40 0.0]);
 plot([1 5 7],[1e-1 1e-2 1e-3]./log2(4),'o','Color',[0.80 0.40 0.0]);
 semilogy(SNRdb,Qam16_fil,'r');
 plot([9 10 12],[2e-2 5e-3 1e-3]./log2(16),'ro');
-semilogy(SNRdb,Qam64_fil,'k');
+semilogy(SNRdb,Qam64array{1},'k');
 plot([12 14 18],[5e-2 1e-2 1e-4]./log2(64),'ko');
 hold off
 xlabel('SNR=Eb/N0(dB)')
 ylabel('BER')
 legend('BPSK','BPSKth','QPSK','QPSKth','Qam16','Qam16th','Qam64','Qam64th')
-title({'Filtered BER for different constellations,',['upsampling rate = ' num2str(M(1))]})
+title(['Filtered BER for different constellations, upsampling rate = ' num2str(M(1))])
 
 rmpath(genpath(pwd))
