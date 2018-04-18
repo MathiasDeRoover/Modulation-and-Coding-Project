@@ -20,6 +20,7 @@ switch modu
 end
 
 bitStream = CreateBitStream(N,bps);
+bitStreamCheck = bitStream;
 
 if mod(numel(bitStream),bps) ~= 0
     error('Number of bits not a multiple of bps');
@@ -93,10 +94,10 @@ for i = 1:numel(EbN0_array)
     %Decoder
     bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit,bps); 
     %BER
-    result = bitStream_rec ~= bitStream;
+%     result = bitStream_rec ~= bitStreamCheck;
 %     figure % MAKE SURE YOU COMPUTE FOR 1 SNR
 %     stem(result)
-    [~,BERratio(i)]=biterr(bitStream_rec,bitStream);
+    [~,BERratio(i)]=biterr(bitStream_rec,bitStreamCheck);
 
 end
 
