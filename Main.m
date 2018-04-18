@@ -12,7 +12,7 @@ beta     = 0.3;              % Roll off factor
 M        = [4 5 6 7 8 35 50 80];              % UpSample factors
 
 
-SNRdb   = linspace(-20,20,500);
+SNRdb   = linspace(-4,20,50);
 SNR     = db2mag(2*SNRdb);      %takes db:20log10(x) and we have power so it should be 10log10(x)
 
 BPSKarray  = cell(numel(M),1);  % Initializing the data cell arrays

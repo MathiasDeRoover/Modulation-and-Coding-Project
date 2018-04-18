@@ -49,15 +49,16 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 % toc
 
 %% Step 3
-N                           = 1;
-c_length                    = 5;
-v_length                    = 10;
-bitStream                   = CreateBitStream(N,c_length);
-[bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H );
-
-tic
-bitStream_rec = LDPC_decoder_soft( bitStream_enc, newH );
-toc
+% N                           = 1;
+% c_length                    = 5;
+% v_length                    = 10;
+% bitStream                   = CreateBitStream(N,c_length);
+% H0                          = makeLdpc(c_length,v_length,0,1,3);
+% [bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H0 ); %Was prev H
+% 
+% tic
+% bitStream_rec = LDPC_decoder_soft( bitStream_enc, newH );
+% toc
 
 %% Plotting results
 

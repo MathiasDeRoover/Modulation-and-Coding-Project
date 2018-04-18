@@ -113,9 +113,8 @@ ylabel('g(-t)')
 %% Ideal Channel
 SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);        % Total signal energy (this is given in slides) %Trapz is integral approx.
 Eb = SignalEnergy / (N*bps);                            % Energy for a single bit? see slides
-%Eb = Eb/2;%Why? We work in baseband so...?              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
-% EbN0 = db2mag(40);                                      % Variable SNR ?
-EbN0 = db2mag(20*2);
+Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
+EbN0 = db2mag(20*2);                                    % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
 N0 = Eb/EbN0;
 NoisePower = 2*N0*fs;
 
@@ -155,7 +154,4 @@ title('Original bitsream minus Recovered bitstream')
 xlabel('time [s]')
 ylabel('Correct if = 0')
 %%%
-
-
-%% Github commit testing with testBranchJohan
 
