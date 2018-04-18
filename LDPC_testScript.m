@@ -20,7 +20,7 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 % % bitStream_enc'
 % 
 % % bitStream_enc = mod(bitStream_enc+noise,2);
-% bitStream_enc(8:10:end) = ~bitStream_enc(8:10:end);         % Add some biterrors manually
+% bitStream_enc(5:10:end) = ~bitStream_enc(5:10:end);         % Add some biterrors manually
 % 
 % tic
 % % bitStream_rec = LDPC_decoder_hard( bitStream_enc, newH );
@@ -45,24 +45,29 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 % toc
 % 
 % tic
-% bitStream_rec               = LDPC_decoder_hard( bitStream_cod, newH );     % Decode
+% bitStream_rec               = LDPC_decoder_hard( bitStream_cod, newH,10 );     % Decode
 % toc
 
 %% Step 3
-% N                           = 1;
-% c_length                    = 5;
-% v_length                    = 10;
-% bitStream                   = CreateBitStream(N,c_length);
-% H0                          = makeLdpc(c_length,v_length,0,1,3);
-% [bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H0 ); %Was prev H
-% 
-% tic
-% bitStream_rec = LDPC_decoder_soft( bitStream_enc, newH );
-% toc
+N                           = 100;
+c_length                    = 5;
+v_length                    = 10;
+bitStream                   = CreateBitStream(N,c_length);
+%bitStream = [1 0 0 1 1]';
+H0                          = makeLdpc(c_length,v_length,0,1,3);
+[bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H0 ); %Was prev H
+
+bitStream_chan = real(IdealChannel_exec(bitStream_enc,200,'BPSK','no_demodu'));
+figure
+histogram(abs(bitStream_chan),0:0.05:2)
+
+tic
+bitStream_rec = LDPC_decoder_soft_log_BPSK( bitStream_chan,H,std(bitStream_chan(bitStream_chan>0)) );
+toc
 
 %% Plotting results
 
 figure
-stem(bitStream_enc ~= bitStream_rec);
+stem(bitStream ~= bitStream_rec);
 
 rmpath(genpath(pwd))

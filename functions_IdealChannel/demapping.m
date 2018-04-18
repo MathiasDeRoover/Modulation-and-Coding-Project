@@ -88,7 +88,7 @@ switch modulation,
     case 'psk'
         
         % Symbol to integer
-        theta_rx = angle(symb_rx);
+        theta_rx = angle(symb_rx) - pi;
         theta_rx(theta_rx<0) = theta_rx(theta_rx<0)+2*pi;
         int_rx = theta_rx * 2^Nbps/2/pi;
 
