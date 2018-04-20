@@ -6,16 +6,19 @@ function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit,bps
 
 
 
-%%%
-zerosToPad = c_num - mod(length(bitStream_enc),c_num);
-if (zerosToPad ~= 0)
-%     disp('We need to pad some zeros')
-    bitStream_enc = [bitStream_enc; zeros(zerosToPad,1)];
-    while mod(numel(bitStream_enc),bps) ~= 0                % Infinite loops should not happen, but be careful!
-        bitStream_enc = [bitStream_enc; zeros(c_num,1)];
-        zerosToPad = zerosToPad + c_num;
-    end
-end
+%%% This code is only needed if receiver does not know amount of
+%%% zerosToPad. I am not 100% sure that we don't remove useful information
+%%% when using this code.
+
+% zerosToPad = c_num - mod(length(bitStream_enc),c_num);
+% if (zerosToPad ~= 0)
+% %     disp('We need to pad some zeros')
+%     bitStream_enc = [bitStream_enc; zeros(zerosToPad,1)];
+%     while mod(numel(bitStream_enc),bps) ~= 0                % Infinite loops should not happen, but be careful!
+%         bitStream_enc = [bitStream_enc; zeros(c_num,1)];
+%         zerosToPad = zerosToPad + c_num;
+%     end
+% end
 %%%
 
 
@@ -43,6 +46,6 @@ while (while_it ~= while_it_limit) && any(any(v_nodes - v_nodes_old))
     v_nodes         = and(round(average),~average_mask) + and(bitstrm_enc_rshp,average_mask);
 end
 bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
-bitStream           = bitStream(1:end-zerosToPad);
+% bitStream           = bitStream(1:end-zerosToPad);
 end
 
