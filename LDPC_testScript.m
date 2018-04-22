@@ -63,19 +63,23 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 
 
 
-% N                           = 100;
-% c_length                    = 5;
-% v_length                    = 10;
-% bitStream                   = CreateBitStream(N,c_length);
-% %bitStream = [1 0 0 1 1]';
-% H0                          = makeLdpc(c_length,v_length,0,1,3);
-% [bitStream_enc,newH]        = LDPC_encoder_lite( bitStream, H0 ); %Was prev H
-% 
-% bitStream_chan = real(IdealChannel_exec(bitStream_enc,200,'BPSK','no_demodu'));
-% 
-% tic
-% bitStream_rec = LDPC_decoder_soft_log_BPSK( bitStream_chan,H,std(bitStream_chan(bitStream_chan>0)) );
-% toc
+N                           = 100;
+c_length                    = 5;
+v_length                    = 10;
+bitStream                   = CreateBitStream(N,c_length);
+%bitStream = [1 0 0 1 1]';
+H0                          = makeLdpc(c_length,v_length,0,1,3);
+
+bitStream_blk               = reshape(bitStream,c_length,[]);
+[bitStream_cod_blk,newH]    = makeParityChk(bitStream_blk, H0, 0);          % Create parity check bits and reshape H
+bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Unite parity check bits and message
+bitStream_cod               = reshape(bitStream_cod_blk,[],1);      
+
+bitStream_chan = real(IdealChannel_exec(bitStream_cod,200,'BPSK','no_det'));
+
+tic
+bitStream_rec = LDPC_decoder_soft_BPSK( bitStream_chan,newH,std(bitStream_chan(bitStream_chan>0)) );
+toc
 
 %% Plotting results
 

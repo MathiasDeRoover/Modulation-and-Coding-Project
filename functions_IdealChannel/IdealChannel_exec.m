@@ -49,7 +49,7 @@ g = fftshift(ifft(G,'symmetric'));                      % Transform G to the tim
 sgStream = conv(supStream,g);                           % Windowing upStream in the frequencyDomain with g(t)
 
 %% Ideal Channel
-SignalEnergy = (trapz(abs(in_stream).^2))*(1/fs);       % Total signal energy (this is given in slides) %Trapz is integral approx.
+SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);       % Total signal energy (this is given in slides) %Trapz is integral approx.
 Eb = SignalEnergy / (N);                                % Energy for a single bit? see slides
 Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
 EbN0 = db2mag(SNR*2);                                   % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
@@ -73,9 +73,9 @@ sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data t
 shsStream = sggStream(1:M:end);                         % Sampling at nT
 
 switch option
-    case 'no_demodu'
+    case 'no_det'
         output_stream = shsStream;
-    case 'demodu'
+    case 'det'
         output_stream = demapping(shsStream, bps, modulation);      % Demapping
     otherwise
         error('Option not defined')
