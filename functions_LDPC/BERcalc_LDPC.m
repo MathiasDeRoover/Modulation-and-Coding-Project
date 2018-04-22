@@ -92,7 +92,7 @@ for i = 1:numel(EbN0_array)
     recStream = demapping(shsStream, bps, modulation);      % Demapping
     
     %Decoder
-    bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit,bps);
+    bitStream_rec  = LDPC_decoder_hard(recStream, newH ,iteration_limit);
     
     % Receiver knows how much padding is added
     bitStream_rec   = bitStream_rec(1:end-zerosToPad);

@@ -1,15 +1,14 @@
-function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit,bps )
+function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit )
 %LDPC_DECODER_HARD Decode LDPC encoding.
 %   Decode LDPC encoding using a hard decoding scheme. This method should
 %   go fast and be pretty optimized.
 [c_num,v_num]       = size(H);
 
-
-
 %%% This code is only needed if receiver does not know amount of
 %%% zerosToPad. I am not 100% sure that we don't remove useful information
 %%% when using this code.
 
+% %%%
 % zerosToPad = c_num - mod(length(bitStream_enc),c_num);
 % if (zerosToPad ~= 0)
 % %     disp('We need to pad some zeros')
@@ -21,19 +20,18 @@ function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit,bps
 % end
 %%%
 
-
 bitstrm_enc_rshp    = reshape(bitStream_enc,v_num,[])';
 H                   = reshape(H',1,v_num,[]);                               % Why do you make dimensions 1x256x128?
 
 v_nodes             = bitstrm_enc_rshp;
 v_nodes_old         = inf(size(v_nodes));
 while_it            = 0;
+
 if ~exist('while_it_limit','var')
         while_it_limit      = 10;
-else 
-        while_it_limit=while_it_limit;
 end
-while (while_it ~= while_it_limit) && any(any(v_nodes - v_nodes_old))
+
+while (while_it ~= while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)))
     while_it        = while_it + 1;
     c_nodes         = mod(sum(v_nodes & H,2),2);
     c_nodes         = reshape(c_nodes,[],1,c_num);
