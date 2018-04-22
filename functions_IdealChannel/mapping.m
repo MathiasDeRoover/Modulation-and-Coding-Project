@@ -83,7 +83,7 @@ switch modulation
         int_tx = bi2de(mapp_tx, 'left-msb');
 
         % Integer to symbol      
-        theta = 2*pi / (2^Nbps)*(int_tx);
+        theta = 2*pi / (2^Nbps)*(int_tx) + pi;
         symb_tx = exp(1i*theta);
          
 end
