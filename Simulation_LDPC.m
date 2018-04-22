@@ -4,7 +4,7 @@ close all
 clc
 addpath(genpath(pwd))
 
-N        = 1024;              % Amount of Symbols
+N        = 1000;              % Amount of Symbols
 window_N = 10;               % Time axis window = window_N * T
 symRate  = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T        = 1/symRate;        % Symbol period
@@ -12,10 +12,10 @@ beta     = 0.3;              % Roll off factor
 M = 4;
 
 % Limit for the nr of iterations:
-% iterations=[1 5 20 100 2000 20000];
-iterations=1;
+iterations=[1 5 20 100 2000 20000];
+% iterations=1;
 
-SNRdb   = linspace(-20,20,500);
+SNRdb   = linspace(-20,20,50);
 % SNRdb   = 60;
 SNR     = db2mag(2*SNRdb);      %takes db:20log10(x) and we have power so it should be 10log10(x)
 
@@ -76,6 +76,7 @@ xlabel('SNR=Eb/N0(dB)')
 ylabel('BER')
 legend('BPSK','QPSK','Qam16','Qam64')
 title(['BER for different constallations and M= ' num2str(M) ' without LDPC'])
+% title(['BER for BPSK and M = ' num2str(M) ' without LDPC'])
 
 figure
 semilogy(SNRdb,BPSKarray_LDPC(1,:),'b');
@@ -88,33 +89,36 @@ xlabel('SNR=Eb/N0(dB)')
 ylabel('BER')
 legend('BPSK','QPSK','Qam16','Qam64')
 title(['BER for different constallations and M = ' num2str(M) ' with LDPC, hard decoding'])
+% title(['BER for BPSK and M = ' num2str(M) ' with LDPC, hard decoding'])
 
 
+iterationlim = numel(iterations);
 figure
 subplot(2,2,1)
 semilogy(SNRdb,BPSKarray);
 hold on
-semilogy(SNRdb,BPSKarray_LDPC(1,:));
+semilogy(SNRdb,BPSKarray_LDPC(iterationlim,:));
 legend('No LDPC','Hard decoding')
 title('BPSK')
 subplot(2,2,2)
 semilogy(SNRdb,QPSKarray);
 hold on
-semilogy(SNRdb,QPSKarray_LDPC(1,:));
+semilogy(SNRdb,QPSKarray_LDPC(iterationlim,:));
 legend('No LDPC','Hard decoding')
 title('QPSK')
 subplot(2,2,3)
 semilogy(SNRdb,Qam16array);
 hold on
-semilogy(SNRdb,Qam16array_LDPC(1,:));
+semilogy(SNRdb,Qam16array_LDPC(iterationlim,:));
 legend('No LDPC','Hard decoding')
 title('16QAM')
 subplot(2,2,4)
 semilogy(SNRdb,Qam64array);
 hold on
-semilogy(SNRdb,Qam64array_LDPC(1,:));
+semilogy(SNRdb,Qam64array_LDPC(iterationlim,:));
 legend('No LDPC','Hard decoding')
 title('64QAM')
+suptitle(['Comparison BER with and without LDPC for an iteration limit of ' num2str(iterations(iterationlim))])
 
 figure
 subplot(2,2,1)

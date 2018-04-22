@@ -4,7 +4,9 @@ function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit )
 %   go fast and be pretty optimized.
 [c_num,v_num]       = size(H);
 
-
+%%% This code is only needed if receiver does not know amount of
+%%% zerosToPad. I am not 100% sure that we don't remove useful information
+%%% when using this code.
 
 % %%%
 % zerosToPad = c_num - mod(length(bitStream_enc),c_num);
@@ -16,8 +18,7 @@ function [ bitStream ] = LDPC_decoder_hard( bitStream_enc, H ,while_it_limit )
 %         zerosToPad = zerosToPad + c_num;
 %     end
 % end
-% %%%
-
+%%%
 
 bitstrm_enc_rshp    = reshape(bitStream_enc,v_num,[])';
 H                   = reshape(H',1,v_num,[]);                               % Why do you make dimensions 1x256x128?
@@ -43,5 +44,6 @@ while (while_it ~= while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2
     v_nodes         = and(round(average),~average_mask) + and(bitstrm_enc_rshp,average_mask);
 end
 bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
+% bitStream           = bitStream(1:end-zerosToPad);
 end
 
