@@ -4,7 +4,7 @@ close all
 clc
 addpath(genpath(pwd))
 
-N        = 1213;              % Amount of Symbols
+N        = 1024;              % Amount of Symbols
 window_N = 10;               % Time axis window = window_N * T
 symRate  = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T        = 1/symRate;        % Symbol period
