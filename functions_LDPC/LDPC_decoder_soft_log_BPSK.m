@@ -11,7 +11,7 @@ for bstr = 1:numel(bitStream_enc)/i_num
     y = bitStream_enc( (1:i_num) + (bstr-1)*i_num );
 
     %% Initialize
-    L_c = - 2*y/sig^2;
+    L_c = - 2*y/(sig^2);
     L_q = repmat(L_c,1,j_num);
     
     iterate = true;

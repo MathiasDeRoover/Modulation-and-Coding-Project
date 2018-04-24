@@ -6,7 +6,7 @@ bitSCBlock      = [bitPBlock;bitSBlock];            % Concatenate parity check b
 bitSCoded       = reshape(bitSCBlock,[],1);
 
 %% Send through channel
-bitSRecv    = IdealChannel_exec(bitSCoded,SNR,'BPSK','no_det');     % Send through channel withouth detector
+bitSRecv    = IdealChannel_exec(bitSCoded,SNR,'BPSK','no_det');     % Send through channel without detector
 bitSRDet    = bitSRecv>0;                                           % Detector
 
 %% Decode bitstream
