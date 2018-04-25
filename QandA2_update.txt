@@ -1,0 +1,11 @@
+Q&A2:
+(Initial) value for sigma in soft decoding related to chain ( variance of output noise at demod)
+	How to determine sigma?
+
+Is our reasoning for the questions correct?
+
+Is it possible that hard_decoding yields higher BER for QAM?
+
+Iteration limit has no influence on code gain?
+
+Is it normal that the logarithmic soft decoder takes much longer to run?

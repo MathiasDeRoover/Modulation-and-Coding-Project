@@ -15,7 +15,7 @@ for bstr = 1:numel(bitStream_enc)/i_num
     L_q = repmat(L_c,1,j_num);
     
     iterate = true;
-    it_lim  = 20;
+    it_lim  = 10;
     it      = 0;
     while iterate
         
@@ -50,7 +50,7 @@ for bstr = 1:numel(bitStream_enc)/i_num
         it = it+1;
     end
     
-    bitStream((1:j_num) + (bstr-1)*j_num ) = c(end-j_num+1:end)';
+    bitStream((1:j_num) + (bstr-1)*j_num ) = c(end-j_num+1:end)'; %c(1:end)' ?
 end
 end
 
