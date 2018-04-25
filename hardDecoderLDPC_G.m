@@ -1,4 +1,4 @@
-function [ received ] = hardDecoderLPDC_G( received, H, messageBlockSize, codedBlockSize )
+function [ received ] = hardDecoderLDPC_G( received, H, messageBlockSize, codedBlockSize )
 %hardDecoderLPDC Summary of this function goes here
 %   Receives a 1 x (nmbrMessages.codedBlockSize) matrix and gives also a
 %   matrix of this format back. For the calculations, it is reshaped
@@ -7,7 +7,7 @@ function [ received ] = hardDecoderLPDC_G( received, H, messageBlockSize, codedB
 received = reshape(received,codedBlockSize,[])';
 
 nmbrMessages = size(received,1);
-maxIterations = 50;
+maxIterations = 10;
 actualIteration = 0;
 
 while actualIteration<maxIterations
@@ -37,7 +37,7 @@ while actualIteration<maxIterations
         break;
     else
         received = newreceived;
-        actualIteration=actualIteration+1
+        actualIteration=actualIteration+1;
         if actualIteration==maxIterations
             warning('hardDecoderLPDC: Max looping exceeded')
             break;
