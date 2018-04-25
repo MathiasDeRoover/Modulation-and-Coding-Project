@@ -21,7 +21,7 @@ while (while_it < while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)
     
     c_xor_v         = xor( v_nodes , c_nodes );
     c_xor_v_masked  = c_xor_v & H;
-    average         = ( sum(c_xor_v_masked,3) + bitstrm_enc_rshp + v_nodes_change ) ./ ( sum(H,3) + 2 );
+    average         = ( sum(c_xor_v_masked,3) + v_nodes + v_nodes_change ) ./ ( sum(H,3) + 2 );
     average_mask    = average == 0.5;
     v_nodes_old     = v_nodes;
     v_nodes         = and(round(average),~average_mask) + and(v_nodes,average_mask);

@@ -5,10 +5,10 @@ clc
 addpath(genpath(pwd))
 
 H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
-        0 1 1 0 1 1 1 0 0 0;        %   This matrix is sparse,
-        0 0 0 1 0 0 0 1 1 1;        %   it exists out of a lot
-        1 1 0 0 0 1 1 0 1 0;        %   of zeros and a few ones.
-        0 0 1 0 0 1 0 1 0 1;   ];   %
+    0 1 1 0 1 1 1 0 0 0;        %   This matrix is sparse,
+    0 0 0 1 0 0 0 1 1 1;        %   it exists out of a lot
+    1 1 0 0 0 1 1 0 1 0;        %   of zeros and a few ones.
+    0 0 1 0 0 1 0 1 0 1;   ];   %
 
 %% Step 1
 % N = 1e2;
@@ -40,14 +40,14 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 % v_length                    = 256;
 % bitStream                   = CreateBitStream(N,c_length);
 % H0                          = makeLdpc(c_length,v_length,0,1,3);            % Create initial parity check matrix of size 128 x 256
-% 
+%
 % tic
 % bitStream_blk               = reshape(bitStream,c_length,[]);
 % [bitStream_cod_blk,newH]    = makeParityChk(bitStream_blk, H0, 0);          % Create parity check bits and reshape H
 % bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Unite parity check bits and message
-% bitStream_cod               = reshape(bitStream_cod_blk,[],1);      
+% bitStream_cod               = reshape(bitStream_cod_blk,[],1);
 % toc
-% 
+%
 % tic
 % bitStream_rec               = LDPC_decoder_hard( bitStream_cod, newH,10 );     % Decode
 % toc
@@ -63,9 +63,9 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 
 
 
-N                           = 6000;
-c_length                    = 5;
-v_length                    = 10;
+N                           = 60;
+c_length                    = 128;
+v_length                    = 256;
 bitStream                   = CreateBitStream(N,c_length);
 %bitStream = [1 0 0 1 1]';
 H0                          = makeLdpc(c_length,v_length,0,1,3);
@@ -75,59 +75,68 @@ bitStream_blk               = reshape(bitStream,c_length,[]);
 bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Unite parity check bits and message
 bitStream_cod               = reshape(bitStream_cod_blk,[],1);
 
-SNR      = linspace(-20,20,100);
-noDecBer    = zeros(size(SNR));
-hard2ber    = zeros(size(SNR));
-hard2t      = zeros(size(SNR));
-hard1ber    = zeros(size(SNR));
-hard1t      = zeros(size(SNR));
+modu = {'BPSK','QPSK','16QAM','64QAM'};
+f1 = figure;
+f2 = figure;
 
-
-wait_bar = waitbar(0,'please wait...');
-for i = 1:numel(SNR)
+for m = 1:4
+    SNR      = linspace(-20,20,100);
+    noDecBer    = zeros(size(SNR));
+    hard2ber    = zeros(size(SNR));
+    hard2t      = zeros(size(SNR));
+    hard1ber    = zeros(size(SNR));
+    hard1t      = zeros(size(SNR));
     
-    bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),'BPSK','det'));
+    wait_bar = waitbar(0,'please wait...');
+    for i = 1:numel(SNR)
+        
+        bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),modu{m},'det'));
+        
+        bitStream_chan_det_block    = reshape(bitStream_chan,v_length,[]);
+        bitStream_rec_block         = bitStream_chan_det_block(end-c_length+1:end,:);
+        bitStream_rec               = reshape(bitStream_rec_block,[],1);
+        [~,noDecBer(i)] = biterr(bitStream_rec,bitStream);
+        
+        tic
+        bitStream_rec   = LDPC_decoder_hard_biased( bitStream_chan, newH, 10);
+        hard2t(i) = toc;
+        [~,hard2ber(i)] = biterr(bitStream_rec,bitStream);
+        
+        tic
+        bitStream_rec   = LDPC_decoder_hard( bitStream_chan, newH ,10);
+        hard1t(i) = toc ;
+        [~,hard1ber(i)] = biterr(bitStream_rec,bitStream);
+        
+        waitbar(i/numel(SNR),wait_bar);
+    end
+    close(wait_bar)
+    % tic
+    % bitStream_rec = LDPC_decoder_soft_BPSK( bitStream_chan,newH,std(bitStream_chan(bitStream_chan>0)) );
+    % toc
     
-    bitStream_chan_det_block    = reshape(bitStream_chan,v_length,[]);
-    bitStream_rec_block         = bitStream_chan_det_block(end-c_length+1:end,:);
-    bitStream_rec               = reshape(bitStream_rec_block,[],1);
-    [~,noDecBer(i)] = biterr(bitStream_rec,bitStream);
+    %% Plotting results
+    figure(f1)
+    subplot(2,2,m)
+    semilogy(SNR,noDecBer)
+    hold on
+    semilogy(SNR,hard1ber)
+    semilogy(SNR,hard2ber)
+    hold off
+    ylabel('BER')
+    xlabel('Max iterations at SNR = 5')
+    legend('No decoding','hard decode','hard decode biased')
+    title(modu(m))
     
-    tic
-    bitStream_rec   = LDPC_decoder_hard_lite_new( bitStream_chan, newH, 10);
-    hard2t(i) = toc;
-    [~,hard2ber(i)] = biterr(bitStream_rec,bitStream);
-    
-    tic
-    bitStream_rec   = LDPC_decoder_hard( bitStream_chan, newH ,10);
-    hard1t(i) = toc ;
-    [~,hard1ber(i)] = biterr(bitStream_rec,bitStream);
-    
-    waitbar(i/numel(SNR),wait_bar);
+    figure(f2)
+    subplot(2,2,m)
+    hold on
+    plot(SNR,hard1t)
+    plot(SNR,hard2t)
+    hold off
+    ylabel('timing [s]')
+    xlabel('Max iterations at SNR = 5')
+    legend('hard decode','hard decode biased')
+    title(modu{m})
 end
-close(wait_bar)
-% tic
-% bitStream_rec = LDPC_decoder_soft_BPSK( bitStream_chan,newH,std(bitStream_chan(bitStream_chan>0)) );
-% toc
-
-%% Plotting results
-figure
-semilogy(SNR,noDecBer)
-hold on
-semilogy(SNR,hard1ber)
-semilogy(SNR,hard2ber)
-hold off
-ylabel('BER')
-xlabel('Max iterations at SNR = 5')
-legend('No decoding','hard decode')
-
-figure
-hold on
-plot(SNR,hard1t)
-plot(SNR,hard2t)
-hold off
-ylabel('timing [s]')
-xlabel('Max iterations at SNR = 5')
-legend('hard decode')
 
 rmpath(genpath(pwd))
