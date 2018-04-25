@@ -22,7 +22,7 @@ for bstr = 1:numel(bitStream_enc)/i_num
     p = q1(:,1);
     
     iterate = true;
-    it_lim  = 20;
+    it_lim  = 10;
     it      = 0;
     while iterate
         it = it+1;

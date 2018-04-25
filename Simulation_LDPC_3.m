@@ -20,7 +20,7 @@ wait_bar = waitbar(0,'Please wait...');
 for i = 1:numel(SNRvec)
     %% Generate bitstream
     N           = 10;   % Number of symbols
-    bps         = c;    % Bits per symbol
+    bps         = 1;    % Bits per symbol
     bitStream   = CreateBitStream( N,bps );
     
     [berSoft(i),berSoftLog(i),berHard(i),ber(i)] = LDPC_berCalc(bitStream,H,SNRvec(i));

@@ -63,10 +63,10 @@ H = [   1 1 0 1 1 0 0 1 0 0;        % Define Parity Check matrix H:
 
 
 
-N                           = 100;
-c_length                    = 5;
-v_length                    = 10;
-bitStream                   = CreateBitStream(N,c_length);
+N                           = 25600;
+c_length                    = 128;
+v_length                    = 256;
+bitStream                   = CreateBitStream(N,1);
 %bitStream = [1 0 0 1 1]';
 H0                          = makeLdpc(c_length,v_length,0,1,3);
 
@@ -75,15 +75,21 @@ bitStream_blk               = reshape(bitStream,c_length,[]);
 bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];            % Unite parity check bits and message
 bitStream_cod               = reshape(bitStream_cod_blk,[],1);      
 
-bitStream_chan = real(IdealChannel_exec(bitStream_cod,200,'BPSK','no_det'));
+bitStream_chan = IdealChannel_exec(bitStream_cod,2,'BPSK','no_det');
+
+% realSym = real(bitStream_chan);
+% imagSym = imag(bitStream_chan);
+% figure
+% plot(realSym,imagSym,'*');
 
 tic
-bitStream_rec = LDPC_decoder_soft_BPSK( bitStream_chan,newH,std(bitStream_chan(bitStream_chan>0)) );
+bitStream_rec = LDPC_decoder_soft_BPSK( real(bitStream_chan),newH,std(bitStream_chan(bitStream_chan>0)) );
 toc
 
 %% Plotting results
 
 figure
-stem(bitStream ~= bitStream_rec);
+% stem(bitStream ~= bitStream_rec);
+stem(bitStream_cod ~= bitStream_rec);
 
 rmpath(genpath(pwd))

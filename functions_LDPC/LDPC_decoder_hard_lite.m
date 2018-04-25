@@ -4,26 +4,28 @@ function [ bitStream ] = LDPC_decoder_hard_lite( bitStream_enc, H )
 [M_H,N_H] = size(H);
 bitStream_enc_blocks    = reshape(bitStream_enc,N_H,numel(bitStream_enc)/N_H)';             % Reshape bitstream back to blocks of code
 bitStream_blocks        = zeros(numel(bitStream_enc)/N_H, M_H);                             % Initialize vector for decoded code blocks
+iterate_lim = 10;
 
-wait_bar = waitbar(0,'Decoding');
+% wait_bar = waitbar(0,'Decoding');
 for i = 1:numel(bitStream_enc)/N_H
     v_nodes = bitStream_enc_blocks(i,:);                                                    % Decode one block of bits at a time
-    
+    iterations = 0;
     iterate = true;
     while iterate
         c_nodes = mod(sum(v_nodes & H,2),2);                                                % Check comment below
         temp = (sum(xor(c_nodes,v_nodes)&H)+bitStream_enc_blocks(i,:)) ./ (sum(H)+1);       % Check comment below
         temp2 = temp == 0.5;
         v_nodes_new = and(round(temp),~temp2) + and(bitStream_enc_blocks(i,:),temp2);
-        if v_nodes_new == v_nodes
+        if all(v_nodes_new == v_nodes) || (iterations > iterate_lim)
             iterate = false;
         end
         v_nodes = v_nodes_new;
+        iterations = iterations + 1;
     end 
     bitStream_blocks(i,:) =  v_nodes(end-M_H+1:end);
-    waitbar(i/(numel(bitStream_enc)/N_H),wait_bar);
+%     waitbar(i/(numel(bitStream_enc)/N_H),wait_bar);
 end
-close(wait_bar)
+% close(wait_bar)
 bitStream_blocks = bitStream_blocks';
 bitStream = bitStream_blocks(:);
 end
