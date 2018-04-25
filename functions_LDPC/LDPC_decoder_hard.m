@@ -31,7 +31,7 @@ if ~exist('while_it_limit','var')
         while_it_limit      = 10;
 end
 
-while (while_it ~= while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)))
+while (while_it < while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)))
     while_it        = while_it + 1;
     c_nodes         = mod(sum(v_nodes & H,2),2);
     c_nodes         = reshape(c_nodes,[],1,c_num);
