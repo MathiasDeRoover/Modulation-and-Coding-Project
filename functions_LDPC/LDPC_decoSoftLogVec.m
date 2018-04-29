@@ -1,4 +1,4 @@
-function [ recStream ] = LDPC_decoder_softLog2( inStream, H, sig, it_lim )
+function [ recStream ] = LDPC_decoSoftLogVec( inStream, H, sig, it_lim )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
