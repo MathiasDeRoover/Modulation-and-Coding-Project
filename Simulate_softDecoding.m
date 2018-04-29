@@ -34,7 +34,7 @@ for i = 1:numel(SNR)
     
     bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),'BPSK','no_det'));
     sigma = std(real(bitStream_chan(real(bitStream_chan)>0)));
-    bitStream_chan_det = real(bitStream_chan) > 0.5;
+    bitStream_chan_det = real(bitStream_chan) > 0;
     
     bitStream_chan_det_block    = reshape(bitStream_chan_det,v_length,[]);
     bitStream_rec_block         = bitStream_chan_det_block(end-c_length+1:end,:);
