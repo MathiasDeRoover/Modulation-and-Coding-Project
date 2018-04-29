@@ -31,10 +31,11 @@ while (it<it_lim) && any(any(mod(c * permute(H,[2,3,1]),2)))
     Lr_step5 = log10( (exp(Lq_abs)+1) ./ (exp(Lq_abs)-1) );
     Lr_step5(~repmat(H,size(Lr_step5,1),1,1)) = 0;
     Lr_step6 = sum(Lr_step5,2);
-    Lr_step7 = Lr_step6 - Lr_step5;
-    Lr_step8 = log10( (exp(Lr_step7)+1) ./ (exp(Lr_step7)-1) );
+    Lr_step7 = repmat(Lr_step6,1,i_num,1);
+    Lr_step8 = Lr_step7 - Lr_step5;
+    Lr_step9 = log10( (exp(Lr_step8)+1) ./ (exp(Lr_step8)-1) );
     
-    Lr = Lr_step4 .* Lr_step8;
+    Lr = Lr_step4 .* Lr_step9;
     
     
     Lq_step1 = Lr;
