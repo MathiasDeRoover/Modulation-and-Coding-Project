@@ -7,7 +7,7 @@ function [ received ] = hardDecoderLDPC_G2( received, H, messageBlockSize, coded
 received = reshape(received,codedBlockSize,[])';
 
 nmbrMessages = size(received,1);
-maxIterations = 150;
+maxIterations = 20;
 actualIteration = 0;
 
 decisionvector = ones(nmbrMessages,codedBlockSize);

@@ -58,8 +58,8 @@ for i=1:length(SNR)
     
 %% Decode bitstream
     
-    hardDecodedJMG      = LDPC_decoder_hard( receivedStream, Hs, 10 );
-    hardDecodedGuylian  = hardDecoderLDPC_G( receivedStream, Hs, c_nodes, v_nodes );
+    hardDecodedJMG      = LDPC_decoder_hard_biased( receivedStream, Hs, 10 );
+    hardDecodedGuylian  = hardDecoderLDPC_G2( receivedStream, Hs, c_nodes, v_nodes );
 
 %     bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
 % %     bitRecoveredHardbpsk    = LDPC_decoder_hard_lite( receivedCodedbpsk, Hs);

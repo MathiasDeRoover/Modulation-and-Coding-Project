@@ -25,9 +25,9 @@ while (while_it < while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)
     average_mask    = average == 0.5;
     v_nodes_old     = v_nodes;
     v_nodes         = and(round(average),~average_mask) + and(v_nodes,average_mask);
-    temp            = v_nodes-0.5;
-    temp(v_nodes_old == v_nodes) = 0;
-    v_nodes_change  = ones(size(v_nodes))*0.5 + temp; 
+    v_nodes_change = v_nodes;
+    v_nodes_change(v_nodes_old == v_nodes) = ~v_nodes(v_nodes_old == v_nodes);
+    
 end
 bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
 end
