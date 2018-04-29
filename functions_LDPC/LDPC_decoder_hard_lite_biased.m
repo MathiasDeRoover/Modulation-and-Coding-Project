@@ -18,11 +18,8 @@ for i = 1:numel(bitStream_enc)/N_H
         temp = (sum(xor(c_nodes,v_nodes)&H) + v_nodes + v_nodes_change) ./ (sum(H)+2);       % Check comment below
         temp2 = temp == 0.5;
         v_nodes_new = and(round(temp),~temp2) + and(v_nodes,temp2);
-        
-        temp            = v_nodes_new-0.5;
-        temp(v_nodes == v_nodes_new) = 0;
-        v_nodes_change  = ones(size(v_nodes_new))*0.5 + temp;
-        
+        v_nodes_change = v_nodes;
+        v_nodes_change(v_nodes_old == v_nodes) = ~v_nodes(v_nodes_old == v_nodes);
         v_nodes = v_nodes_new;
         iterations = iterations + 1;
     end 

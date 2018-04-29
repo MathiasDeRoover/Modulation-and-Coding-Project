@@ -54,12 +54,12 @@ for i=1:length(SNR)
 %     receivedCoded16qam     = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
 %     receivedCoded64qam     = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
 
-    receivedStream = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det');
+    receivedStream = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det',bitStream);
     
 %% Decode bitstream
     
     hardDecodedJMG      = LDPC_decoder_hard_biased( receivedStream, Hs, 10 );
-    hardDecodedGuylian  = hardDecoderLDPC_G( receivedStream, Hs, c_nodes, v_nodes );
+    hardDecodedGuylian  = hardDecoderLDPC_G2( receivedStream, Hs, c_nodes, v_nodes );
 
 %     bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
 % %     bitRecoveredHardbpsk    = LDPC_decoder_hard_lite( receivedCodedbpsk, Hs);
