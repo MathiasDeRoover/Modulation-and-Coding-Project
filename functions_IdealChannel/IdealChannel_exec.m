@@ -1,4 +1,4 @@
-function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option )
+function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,uncoded)
 %IdealChannel_exec A function to execute the ideal channel calculations
 %   Takes an input stream, SNR and modulation method.
 
@@ -49,7 +49,8 @@ g = fftshift(ifft(G,'symmetric'));                      % Transform G to the tim
 sgStream = conv(supStream,g);                           % Windowing upStream in the frequencyDomain with g(t)
 
 %% Ideal Channel
-SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);       % Total signal energy (this is given in slides) %Trapz is integral approx.
+% SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);       % Total signal energy (this is given in slides) %Trapz is integral approx.
+SignalEnergy = (trapz(abs(uncoded).^2))*(1/fs); 
 Eb = SignalEnergy / (N);                                % Energy for a single bit? see slides
 Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
 EbN0 = db2mag(SNR*2);                                   % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)

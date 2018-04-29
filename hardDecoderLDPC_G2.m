@@ -41,7 +41,7 @@ while actualIteration<maxIterations
         break;
     else
         received = newreceived;
-        actualIteration=actualIteration+1
+        actualIteration=actualIteration+1;
         if actualIteration==maxIterations
             warning('hardDecoderLPDC: Max looping exceeded')
             break;
