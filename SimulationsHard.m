@@ -13,20 +13,20 @@ H           = makeLdpc(c_nodes,v_nodes,0,1,3);  % Create initial parity check ma
 
 BPSK_BERH = zeros(size(SNR));
 BPSK_BERN = zeros(size(SNR));
-QPSK_BERH = zeros(size(SNR));
-QPSK_BERN = zeros(size(SNR));
-QAM16_BERH = zeros(size(SNR));
-QAM16_BERN = zeros(size(SNR));
-QAM64_BERH = zeros(size(SNR));
-QAM64_BERN = zeros(size(SNR));
+% QPSK_BERH = zeros(size(SNR));
+% QPSK_BERN = zeros(size(SNR));
+% QAM16_BERH = zeros(size(SNR));
+% QAM16_BERN = zeros(size(SNR));
+% QAM64_BERH = zeros(size(SNR));
+% QAM64_BERN = zeros(size(SNR));
 
 
 
 %% Generate bitstream
-N           = 768*200;   % Number of symbols
+N           = 768*20;   % Number of symbols
 bps         = 1;    % Bits per symbol
 
-wait_bar = waitbar(0,'Simulating');
+% wait_bar = waitbar(0,'Simulating');
 for i=1:length(SNR)
     bitStream   = CreateBitStream( N,bps );
 
@@ -51,46 +51,46 @@ for i=1:length(SNR)
 
 %% Send through channel
     receivedUncodedbpsk      = IdealChannel_exec(bitStream,SNR(i),'BPSK','det');
-    receivedUncodedqpsk      = IdealChannel_exec(bitStream,SNR(i),'QPSK','det');
-    receivedUncoded16qam     = IdealChannel_exec(bitStream,SNR(i),'16QAM','det');
-    receivedUncoded64qam     = IdealChannel_exec(bitStream,SNR(i),'64QAM','det');
+%     receivedUncodedqpsk      = IdealChannel_exec(bitStream,SNR(i),'QPSK','det');
+%     receivedUncoded16qam     = IdealChannel_exec(bitStream,SNR(i),'16QAM','det');
+%     receivedUncoded64qam     = IdealChannel_exec(bitStream,SNR(i),'64QAM','det');
     
     receivedCodedbpsk        = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det');
-    receivedCodedqpsk        = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det');
-    receivedCoded16qam       = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
-    receivedCoded64qam       = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
+%     receivedCodedqpsk        = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det');
+%     receivedCoded16qam       = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
+%     receivedCoded64qam       = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
     
 %% Decode bitstream
     
 
     bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
 
-    bitRecoveredHardqpsk    = LDPC_decoder_hard( receivedCodedqpsk, Hs, 10 );
-
-    bitRecoveredHard16qam    = LDPC_decoder_hard( receivedCoded16qam, Hs, 10 );
-    
-    bitRecoveredHard64qam    = LDPC_decoder_hard( receivedCoded64qam, Hs, 10 );
+%     bitRecoveredHardqpsk    = LDPC_decoder_hard( receivedCodedqpsk, Hs, 10 );
+% 
+%     bitRecoveredHard16qam    = LDPC_decoder_hard( receivedCoded16qam, Hs, 10 );
+%     
+%     bitRecoveredHard64qam    = LDPC_decoder_hard( receivedCoded64qam, Hs, 10 );
 
 %% Calculate bit error
     
     [~,BPSK_BERH(i)] = biterr(bitRecoveredHardbpsk,bitStream);
     [~,BPSK_BERN(i)] = biterr(receivedUncodedbpsk,bitStream);
     
-    [~,QPSK_BERH(i)] = biterr(bitRecoveredHardqpsk,bitStream);
-    [~,QPSK_BERN(i)] = biterr(receivedUncodedqpsk,bitStream);
-    
-    [~,QAM16_BERH(i)] = biterr(bitRecoveredHard16qam,bitStream);
-    [~,QAM16_BERN(i)] = biterr(receivedUncoded16qam,bitStream);
-    
-    [~,QAM64_BERH(i)] = biterr(bitRecoveredHard64qam,bitStream);
-    [~,QAM64_BERN(i)] = biterr(receivedUncoded64qam,bitStream);
-    waitbar(i/numel(SNR),wait_bar);
+%     [~,QPSK_BERH(i)] = biterr(bitRecoveredHardqpsk,bitStream);
+%     [~,QPSK_BERN(i)] = biterr(receivedUncodedqpsk,bitStream);
+%     
+%     [~,QAM16_BERH(i)] = biterr(bitRecoveredHard16qam,bitStream);
+%     [~,QAM16_BERN(i)] = biterr(receivedUncoded16qam,bitStream);
+%     
+%     [~,QAM64_BERH(i)] = biterr(bitRecoveredHard64qam,bitStream);
+%     [~,QAM64_BERN(i)] = biterr(receivedUncoded64qam,bitStream);
+%     waitbar(i/numel(SNR),wait_bar);
 end
-close(wait_bar);
+% close(wait_bar);
 
 %% Plots
 figure
-subplot(2,2,1)
+% subplot(2,2,1)
 semilogy(SNR, BPSK_BERN)
 hold on
 semilogy(SNR, BPSK_BERH)
@@ -100,35 +100,35 @@ xlabel('SNR (dB)')
 ylabel('BER')
 title('BPSK')
 
-subplot(2,2,2)
-semilogy(SNR, QPSK_BERN)
-hold on
-semilogy(SNR, QPSK_BERH)
-hold off
-legend('Not coded','Hard decoding')
-xlabel('SNR (dB)')
-ylabel('BER')
-title('QPSK')
-
-subplot(2,2,3)
-semilogy(SNR, QAM16_BERN)
-hold on
-semilogy(SNR, QAM16_BERH)
-hold off
-legend('Not coded','Hard decoding')
-xlabel('SNR (dB)')
-ylabel('BER')
-title('QAM16')
-
-subplot(2,2,4)
-semilogy(SNR, QAM64_BERN)
-hold on
-semilogy(SNR, QAM64_BERH)
-hold off
-legend('Not coded','Hard decoding')
-xlabel('SNR (dB)')
-ylabel('BER')
-title('QAM64')
+% subplot(2,2,2)
+% semilogy(SNR, QPSK_BERN)
+% hold on
+% semilogy(SNR, QPSK_BERH)
+% hold off
+% legend('Not coded','Hard decoding')
+% xlabel('SNR (dB)')
+% ylabel('BER')
+% title('QPSK')
+% 
+% subplot(2,2,3)
+% semilogy(SNR, QAM16_BERN)
+% hold on
+% semilogy(SNR, QAM16_BERH)
+% hold off
+% legend('Not coded','Hard decoding')
+% xlabel('SNR (dB)')
+% ylabel('BER')
+% title('QAM16')
+% 
+% subplot(2,2,4)
+% semilogy(SNR, QAM64_BERN)
+% hold on
+% semilogy(SNR, QAM64_BERH)
+% hold off
+% legend('Not coded','Hard decoding')
+% xlabel('SNR (dB)')
+% ylabel('BER')
+% title('QAM64')
 
 
 rmpath(genpath(pwd))

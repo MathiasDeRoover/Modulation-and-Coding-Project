@@ -7,7 +7,7 @@ addpath(genpath(pwd))
 %% Generate H matrix
 c_nodes     = 128;                  % Block length
 v_nodes     = 256;                  % Coded block length
-SNR         = linspace(-20,20,200);  % SNR in dB for IdealChannel_exec
+SNR         = linspace(-20,20,40);  % SNR in dB for IdealChannel_exec
 % SNR         = db2mag(SNRdb);
 H           = makeLdpc(c_nodes,v_nodes,0,1,3);  % Create initial parity check matrix
 
@@ -58,7 +58,7 @@ for i=1:length(SNR)
     
 %% Decode bitstream
     
-    hardDecodedJMG      = LDPC_decoder_hard( receivedStream, Hs, 10 );
+    hardDecodedJMG      = LDPC_decoder_hard_biased( receivedStream, Hs, 10 );
     hardDecodedGuylian  = hardDecoderLDPC_G( receivedStream, Hs, c_nodes, v_nodes );
 
 %     bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
