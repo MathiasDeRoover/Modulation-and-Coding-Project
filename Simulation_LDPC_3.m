@@ -19,7 +19,7 @@ ber         = zeros(size(SNRvec));
 wait_bar = waitbar(0,'Please wait...');
 for i = 1:numel(SNRvec)
     %% Generate bitstream
-    N           = 10;   % Number of symbols
+    N           = 1e3;   % Number of symbols
     bps         = 1;    % Bits per symbol
     bitStream   = CreateBitStream( N,bps );
     
