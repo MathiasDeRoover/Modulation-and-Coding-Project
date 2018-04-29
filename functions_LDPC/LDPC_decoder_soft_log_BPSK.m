@@ -42,7 +42,7 @@ for bstr = 1:numel(bitStream_enc)/i_num
             L_Q(i) = L_c(i) + sum( L_r(Ci,i) );
         end
         
-        c = (L_Q < 0)';
+        c = (L_Q < 0)'; % 0= log10(1) so >1--> >0,so <1--> <0
 
         if( it == it_lim || ~any(mod(c * H',2)))
             iterate = false;
@@ -51,6 +51,8 @@ for bstr = 1:numel(bitStream_enc)/i_num
     end
     
     bitStream((1:j_num) + (bstr-1)*j_num ) = c(end-j_num+1:end)'; %c(1:end)' ?
+    % (1:j_num) + (bstr-1)*j_num :: Create right indices
+    % end-j_num+1:end :: save last determined values
 end
 end
 

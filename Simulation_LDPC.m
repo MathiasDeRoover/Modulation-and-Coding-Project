@@ -12,10 +12,10 @@ beta     = 0.3;              % Roll off factor
 M = 4;
 
 % Limit for the nr of iterations:
-iterations=[1 5 20 100 2000 20000];
+iterations=[1 5 20 100];% 2000 20000];
 % iterations=1;
 
-SNRdb   = linspace(-20,20,50);
+SNRdb   = linspace(-20,20,250);
 % SNRdb   = 60;
 SNR     = db2mag(2*SNRdb);      %takes db:20log10(x) and we have power so it should be 10log10(x)
 
@@ -50,10 +50,10 @@ Qam16array=BERcalc(N,ftaps,'16QAM',M,fs,g,SNR, 1, numel(M));
 Qam64array=BERcalc(N,ftaps,'64QAM',M,fs,g,SNR, 1, numel(M));
 
 for j=1:numel(iterations)
-    BPSKarray_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'BPSK',M,fs,g,SNR,j);
-    QPSKarray_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'QPSK',M,fs,g,SNR,j);
-    Qam16array_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'16QAM',M,fs,g,SNR,j);
-    Qam64array_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'64QAM',M,fs,g,SNR,j);
+    BPSKarray_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'BPSK',M,fs,g,SNR,iterations(j));
+    QPSKarray_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'QPSK',M,fs,g,SNR,iterations(j));
+    Qam16array_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'16QAM',M,fs,g,SNR,iterations(j));
+    Qam64array_LDPC(j,:)=BERcalc_LDPC(N,ftaps,'64QAM',M,fs,g,SNR,iterations(j));
 end
 toc
 

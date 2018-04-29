@@ -21,7 +21,7 @@ for i = 1:numel(bitStream_enc)/N_H
         
         temp            = v_nodes_new-0.5;
         temp(v_nodes == v_nodes_new) = 0;
-        v_nodes_change  = ones(size(v_nodes_new))*0.5 - temp;
+        v_nodes_change  = ones(size(v_nodes_new))*0.5 + temp;
         
         v_nodes = v_nodes_new;
         iterations = iterations + 1;
