@@ -59,3 +59,12 @@ bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
 % bitStream           = bitStream(1:end-zerosToPad);
 end
 
+
+
+
+
+
+
+
+
+

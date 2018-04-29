@@ -7,7 +7,7 @@ addpath(genpath(pwd))
 %% Generate H matrix
 c_nodes     = 128;                  % Block length
 v_nodes     = 256;                  % Coded block length
-SNR         = linspace(-20,20,200);  % SNR in dB for IdealChannel_exec
+SNR         = linspace(-20,20,40);  % SNR in dB for IdealChannel_exec
 % SNR         = db2mag(SNRdb);
 H           = makeLdpc(c_nodes,v_nodes,0,1,3);  % Create initial parity check matrix
 
@@ -49,6 +49,7 @@ for j = 1:numel(itlim)
 %     if j==1
 %         receivedUncodedbpsk     = IdealChannel_exec(bitStream,SNR(i),'BPSK','det',bitStream);
 %     end
+<<<<<<< HEAD
     %     receivedUncodedqpsk     = IdealChannel_exec(bitStream,SNR(i),'QPSK','det');
     %     receivedUncoded16qam     = IdealChannel_exec(bitStream,SNR(i),'16QAM','det');
     %     receivedUncoded64qam     = IdealChannel_exec(bitStream,SNR(i),'64QAM','det');
@@ -111,6 +112,66 @@ for j = 1:numel(itlim)
     %     [~,QAM64_BERN(i)] = biterr(receivedUncoded64qam,bitStream);
         waitbar(((j-1)*numel(SNR)+i)/numel(SNR)/numel(itlim),wait_bar);
     end
+=======
+% else
+%     bitStreamPad = bitStream;
+% end
+    bitStreamPad = bitStream;
+
+%% Encode bitstream
+    bitSBlock       = reshape(bitStreamPad,c_nodes,[]);
+    [bitPBlock,Hs]  = makeParityChk(bitSBlock,H,0);     % Encode & create parity check bits 
+    bitSCBlock      = [bitPBlock;bitSBlock];            % Concatenate parity check bits and data bits
+    bitSCoded       = reshape(bitSCBlock,[],1);
+
+%% Send through channel
+    receivedUncodedbpsk     = IdealChannel_exec(bitStream,SNR(i),'BPSK','det');
+%     receivedUncodedqpsk     = IdealChannel_exec(bitStream,SNR(i),'QPSK','det');
+%     receivedUncoded16qam     = IdealChannel_exec(bitStream,SNR(i),'16QAM','det');
+%     receivedUncoded64qam     = IdealChannel_exec(bitStream,SNR(i),'64QAM','det');
+%     
+%     receivedCodedbpsk     = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det');
+%     receivedCodedqpsk     = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det');
+%     receivedCoded16qam     = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
+%     receivedCoded64qam     = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
+
+    receivedStream = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det',bitStream);
+    
+%% Decode bitstream
+    
+    hardDecodedJMG      = LDPC_decoder_hard_biased( receivedStream, Hs, 10 );
+    hardDecodedGuylian  = hardDecoderLDPC_G2( receivedStream, Hs, c_nodes, v_nodes );
+
+%     bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
+% %     bitRecoveredHardbpsk    = LDPC_decoder_hard_lite( receivedCodedbpsk, Hs);
+% 
+%     bitRecoveredHardqpsk    = LDPC_decoder_hard( receivedCodedqpsk, Hs, 10 );
+% %     bitRecoveredHardqpsk    = LDPC_decoder_hard_lite( receivedCodedqpsk, Hs);
+% 
+%     bitRecoveredHard16qam    = LDPC_decoder_hard( receivedCoded16qam, Hs, 10 );
+% %     bitRecoveredHard16qam    = LDPC_decoder_hard_lite( receivedCoded16qam, Hs);
+%     
+%     bitRecoveredHard64qam    = LDPC_decoder_hard( receivedCoded64qam, Hs, 10 );
+% %     bitRecoveredHard64qam    = LDPC_decoder_hard_lite( receivedCoded64qam, Hs);
+
+%% Calculate bit error
+    [~,BPSK_JMG(i)]     = biterr(hardDecodedJMG,bitStream);
+    [~,BPSK_Guylian(i)] = biterr(hardDecodedGuylian,bitStream);
+    [~,UncodedBER(i)]   = biterr(receivedUncodedbpsk,bitStream);
+
+%     [~,BPSK_BERH(i)] = biterr(bitRecoveredHardbpsk,bitStream);
+%     [~,BPSK_BERN(i)] = biterr(receivedUncodedbpsk,bitStream);
+%     
+%     [~,QPSK_BERH(i)] = biterr(bitRecoveredHardqpsk,bitStream);
+%     [~,QPSK_BERN(i)] = biterr(receivedUncodedqpsk,bitStream);
+%     
+%     [~,QAM16_BERH(i)] = biterr(bitRecoveredHard16qam,bitStream);
+%     [~,QAM16_BERN(i)] = biterr(receivedUncoded16qam,bitStream);
+%     
+%     [~,QAM64_BERH(i)] = biterr(bitRecoveredHard64qam,bitStream);
+%     [~,QAM64_BERN(i)] = biterr(receivedUncoded64qam,bitStream);
+    waitbar(i/numel(SNR),wait_bar);
+>>>>>>> 6cc5cb3445bd92dcebfc7c701a4af5543c7fd9d9
 end
 close(wait_bar);
 

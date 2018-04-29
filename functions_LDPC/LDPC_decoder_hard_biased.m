@@ -31,4 +31,3 @@ while (while_it < while_it_limit) && any(any(mod(v_nodes * permute(H,[2,3,1]),2)
 end
 bitStream           = reshape(v_nodes(:,end-c_num+1:end)',1,[])';
 end
-

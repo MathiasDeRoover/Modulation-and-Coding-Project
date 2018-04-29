@@ -7,7 +7,7 @@ addpath(genpath(pwd))
 %% Generate H matrix
 c_nodes     = 128;                  % Block length
 v_nodes     = 256;                  % Coded block length
-SNR         = linspace(-20,20,200);  % SNR in dB for IdealChannel_exec
+SNR         = linspace(-20,20,40);  % SNR in dB for IdealChannel_exec
 % SNR         = db2mag(SNRdb);
 H           = makeLdpc(c_nodes,v_nodes,0,1,3);  % Create initial parity check matrix
 
@@ -55,21 +55,21 @@ for i=1:length(SNR)
     receivedUncoded16qam     = IdealChannel_exec(bitStream,SNR(i),'16QAM','det');
     receivedUncoded64qam     = IdealChannel_exec(bitStream,SNR(i),'64QAM','det');
     
-    receivedCodedbpsk        = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det');
-    receivedCodedqpsk        = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det');
-    receivedCoded16qam       = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
-    receivedCoded64qam       = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
+    receivedCodedbpsk        = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det',bitStream);
+    receivedCodedqpsk        = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det',bitStream);
+    receivedCoded16qam       = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det',bitStream);
+    receivedCoded64qam       = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det',bitStream);
     
 %% Decode bitstream
     
 
-    bitRecoveredHardbpsk    = LDPC_decoder_hard( receivedCodedbpsk, Hs, 10 );
+    bitRecoveredHardbpsk    = LDPC_decoder_hard_biased( receivedCodedbpsk, Hs, 10 );
 
-    bitRecoveredHardqpsk    = LDPC_decoder_hard( receivedCodedqpsk, Hs, 10 );
+    bitRecoveredHardqpsk    = LDPC_decoder_hard_biased( receivedCodedqpsk, Hs, 10 );
 
-    bitRecoveredHard16qam    = LDPC_decoder_hard( receivedCoded16qam, Hs, 10 );
+    bitRecoveredHard16qam    = LDPC_decoder_hard_biased( receivedCoded16qam, Hs, 10 );
     
-    bitRecoveredHard64qam    = LDPC_decoder_hard( receivedCoded64qam, Hs, 10 );
+    bitRecoveredHard64qam    = LDPC_decoder_hard_biased( receivedCoded64qam, Hs, 10 );
 
 %% Calculate bit error
     

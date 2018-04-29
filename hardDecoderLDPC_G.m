@@ -10,9 +10,11 @@ nmbrMessages = size(received,1);
 maxIterations = 10;
 actualIteration = 0;
 
+decisionvector = ones(nmbrMessages,codedBlockSize);
+
 while actualIteration<maxIterations
     newreceived = received; % v_nodes; variable nodes; received codeword; c's
-    decisionvector = ones(nmbrMessages,codedBlockSize); %If positive, keep the bit of that element, if negative, change it, if zero (no majority), also keep
+    %decisionvector = ones(nmbrMessages,codedBlockSize); %If positive, keep the bit of that element, if negative, change it, if zero (no majority), also keep
     for i = 1:messageBlockSize % i goes through all columns of H -> through all check nodes
         parity = mod(newreceived * H(i,:)',2); % XOR of c's corresponding to ones in H - c_nodes; check nodes; fi
         Hfull = repmat(H(i,:),[nmbrMessages,1]);
@@ -29,9 +31,11 @@ while actualIteration<maxIterations
     zeroindices = find(decisionvector==0);
     decisionvector(zeroindices) = ones(length(zeroindices),1);
     negindices = find(decisionvector==-1);
-    decisionvector(negindices) = zeros(length(negindices),1);
-    decisionvector = not(decisionvector);
+    decisionvector(negindices) = zeros(length(negindices),1); 
+    decisionvector = not(decisionvector); % 0 = keep; 1 = change
     newreceived = xor(newreceived,decisionvector);
+    
+    decisionvector = decisionvector*2; % intial conditions next iteration; back to voting
     
     if newreceived == received
         break;

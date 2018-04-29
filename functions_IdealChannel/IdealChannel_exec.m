@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,uncoded)
+=======
+function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,varargin )
+>>>>>>> 6cc5cb3445bd92dcebfc7c701a4af5543c7fd9d9
 %IdealChannel_exec A function to execute the ideal channel calculations
 %   Takes an input stream, SNR and modulation method.
 
@@ -7,6 +11,12 @@ ftaps   = 80;            % Amount of causal (and non causal) filter taps
 symRate = 2*1e6;         % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T       = 1/symRate;     % Symbol period
 
+% Varargin is the uncoded bitstream
+if nargin == 4
+    bitStreamUncoded = in_stream;
+else
+    bitStreamUncoded = varargin{1};
+end
 %% Tranceiver
 switch modu
     case 'BPSK'
@@ -47,7 +57,6 @@ G = sqrt(H);                                            % G is the square root o
 g = fftshift(ifft(G,'symmetric'));                      % Transform G to the time domain. Fftshift is needed to get a proper raised cosine
 
 sgStream = conv(supStream,g);                           % Windowing upStream in the frequencyDomain with g(t)
-
 %% Ideal Channel
 % SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);       % Total signal energy (this is given in slides) %Trapz is integral approx.
 SignalEnergy = (trapz(abs(uncoded).^2))*(1/fs); 
