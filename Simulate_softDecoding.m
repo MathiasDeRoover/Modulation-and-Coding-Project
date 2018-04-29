@@ -42,12 +42,12 @@ for i = 1:numel(SNR)
     [~,noDecBer(i)] = biterr(bitStream_rec,bitStream);
     
     tic
-    bitStream_rec   = LDPC_decHardVec( bitStream_chan_det, newH ,200);
+    bitStream_rec   = LDPC_decoHardVec( bitStream_chan_det, newH ,10);
     hardT(i) = toc ;
     [~,hardBer(i)] = biterr(bitStream_rec,bitStream);
     
     tic
-    bitStream_rec   = LDPC_decoSoftVec(real(bitStream_chan), newH, sigma, 200);
+    bitStream_rec   = LDPC_decoSoftVec(real(bitStream_chan), newH, sigma, 10);
     softT(i) = toc ;
     [~,softBer(i)] = biterr(bitStream_rec,bitStream);
     

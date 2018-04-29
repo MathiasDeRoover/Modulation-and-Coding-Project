@@ -5,7 +5,7 @@ clc
 addpath(genpath(pwd))
 
 %% Run Simulations
-N                           = 100;   % Number of Points
+N                           = 60*2;   % Number of Points
 c_length                    = 128;
 v_length                    = 256;
 bitStream                   = CreateBitStream(N,c_length);
@@ -51,10 +51,20 @@ for m = 1:4
     semilogy(SNR,noDecBer)
     hold on
     semilogy(SNR,hard1ber)
+    switch modu{m}
+        case 'BPSK'
+            plot([4 6 8],[2e-2 3e-3 3e-4]./log2(2),'bo');
+        case 'QPSK'
+            plot([1 5 7],[1e-1 1e-2 1e-3]./log2(4),'bo');
+        case '16QAM'
+            plot([9 10 12],[2e-2 5e-3 1e-3]./log2(16),'bo')
+        case '64QAM'
+            plot([12 14 18],[5e-2 1e-2 1e-4]./log2(64),'bo')
+    end
     hold off
     ylabel('BER')
     xlabel('SNR')
-    legend('No decoding','hard decode')
+    legend('No decoding','hard decode','no dec theory')
     title(modu(m))
     
     figure(f2)
