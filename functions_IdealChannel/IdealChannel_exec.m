@@ -39,7 +39,7 @@ end
 
 symStream = mapping(bitStream, bps, modulation);
 
-M = 10;                                                 % UpSample factor
+M = 2;                                                 % UpSample factor
 fs = symRate * M;                                       % Sample Frequency
 supStream = upsample(symStream,M);
 
