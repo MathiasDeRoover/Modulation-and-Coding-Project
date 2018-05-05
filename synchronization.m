@@ -4,7 +4,7 @@ clc
 addpath(genpath(pwd))
 
 %% Initialization
-N = 1000;
+N = 100;
 SNR = 20;
 bps = 1;
 
@@ -25,7 +25,6 @@ symStream = mapping(bitStream, bps, modulation);
 M = 2;                                                 % UpSample factor
 fs = symRate * M;                                       % Sample Frequency
 supStream = upsample(symStream,M);
-% supStream = symStream;
 
 beta = 0.3;                                             % Roll off factor
 H = RRCFilter( T,fs,beta,ftaps )';                      % Creating the window
@@ -39,25 +38,36 @@ g = fftshift(ifft(G,'symmetric'));                      % Transform G to the tim
 sgStream = conv(supStream,g,'same');                           % Windowing upStream in the frequencyDomain with g(t)
 
 %% Ignore noise for now
+% SignalEnergy = (trapz(abs(sgStream).^2))*(1/fs);        % Total signal energy (this is given in slides) %Trapz is integral approx.
+% Eb = SignalEnergy / (N*bps);                            % Energy for a single bit? see slides
+% Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
+% EbN0 = db2mag(20*2);                                    % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
+% N0 = Eb/EbN0;
+% NoisePower = 2*N0*fs;
+% 
+% noise = sqrt(NoisePower/2) * (randn(numel(sgStream),1) + 1i*randn(numel(sgStream),1));
+% sgStream = sgStream + noise;
+
+
 
 %% Receiver
 gmin=fliplr(g);                                         % Converting g(t) to g(-t) to get matched filter
 % Shift gmin over eps*T to simulate sampling time offset. 
 % r(t) = sum(I(n)*g(t-nT-eps*T))
 
-plot_t       = ((-floor(numel(h)/2):1:(floor(numel(h)/2)-1))*1/fs).';
-eps          = 0.5;                                              % between [0, 1]
-plot_t_shift = plot_t + eps/fs;
+filter_t     = ((-floor(numel(h)/2):1:(floor(numel(h)/2)-1))*1/fs).';
+eps          = 0.5;                                 % between [0, 1]
+plot_t_shift = filter_t + eps/fs;
 
 % We need to find the values of gmin at the locations corresponding to
 % plot_t_shift
 
-gminshift = interp1(plot_t,gmin,plot_t_shift);
+gminshift = interp1(filter_t,gmin,plot_t_shift);
 gminshift(end) = gminshift(1);                       % Interpolation is not possible for last value
 
 % Show result
 figure
-plot(plot_t,gmin)
+plot(filter_t,gmin)
 hold on
 plot(plot_t_shift,gmin)
 plot(plot_t_shift,gminshift,'*')
@@ -73,30 +83,41 @@ switch modulation                                       % Windowing downStream i
 end
 
 
-% sggStreamCorrect = conv(sgStream,gmin,'same');
-% figure
-% stem(real(sggStream))
-% hold on
-% stem(real(sggStreamCorrect))
-% hold off
+sggStreamCorrect = conv(sgStream,gmin,'same');
+figure
+stem(real(sggStream(1:10)))
+hold on
+stem(real(sggStreamCorrect(1:10)))
+hold off
+legend('Wrong symbols','Correct symbols')
+title('Comparison of correct symbols with shifted sampled symbols')
 
+%% 2nd Method: get symbol values at sample points shifted by eps*T
+symTime = 0:1/fs:(N*M-1)/fs;
+sampleTime = symTime + eps/fs;
+sampleValues = interp1(symTime,sggStreamCorrect,sampleTime);
 
-% Instead of dropping samples here, convolutions have been updated with the
-% 'same' argument. Otherwise the code does not work for M = 2.
-% sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
+figure
+stem(real(sggStream(1:10)))
+hold on
+stem(real(sampleValues(1:10)))
+hold off
+legend('Shifted filter symbols','Shifted sample symbols')
+title('Comparision of both methods')
 
 %% Implement Gardner algorithm
 % y_eps(n) is the matched filter output sampled at nT + eps*T
 epsEst = zeros(N,1);
+epsEst2 = zeros(N,1);
+epsEst3 = zeros(N,1);
 K = 0.05;
 for n=1:N-1
-    epsEst(n+1) = epsEst(n) + K*real(sggStream(2*n)*(conj(sggStream(2*n+1))-conj(sggStream(2*n-1)))); 
+    epsEst(n+1) = epsEst(n) + 2*K*real(sggStream(2*n)*(conj(sggStream(2*n+1))-conj(sggStream(2*n-1))));
+    epsEst2(n+1) = epsEst2(n) + 2*K*real(sampleValues(2*n)*(conj(sampleValues(2*n+1))-conj(sampleValues(2*n-1))));
 end
-% epsEst(end)
+epsEst(end)
+epsEst2(end)
 % epsEst should converge to the real shift value
-
-
-
 
 
 rmpath(genpath(pwd))
