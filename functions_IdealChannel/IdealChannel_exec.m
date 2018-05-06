@@ -2,7 +2,7 @@
 function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,uncoded)
 =======
 function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,varargin )
->>>>>>> 3179b883b0162433e7f826374441c70a138109ba
+>>>>>>> 3371e29d63926aff9dd34ae9e9fb9db4350affb4
 %IdealChannel_exec A function to execute the ideal channel calculations
 %   Takes an input stream, SNR and modulation method.
 
