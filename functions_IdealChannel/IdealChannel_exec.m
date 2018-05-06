@@ -43,7 +43,7 @@ end
 
 symStream = mapping(bitStream, bps, modulation);
 
-M = 2;                                                 % UpSample factor
+M = 4;                                                 % UpSample factor
 fs = symRate * M;                                       % Sample Frequency
 supStream = upsample(symStream,M);
 
@@ -75,12 +75,12 @@ sgStream = sgStream + noise;
 gmin=fliplr(g);                                         % Converting g(t) to g(-t) to get matched filter
 switch modulation                                       % Windowing downStream in the frequencyDomain with g(-t)
     case 'pam'
-        sggStream = real(conv(sgStream,gmin));          % Taking real because noise is complex and pam signal is real.
+        sggStream = real(conv(sgStream,gmin,'same'));          % Taking real because noise is complex and pam signal is real.
     otherwise
-        sggStream = conv(sgStream,gmin);                % Noise and qam signal are complex.
+        sggStream = conv(sgStream,gmin,'same');                % Noise and qam signal are complex.
 end
 
-sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
+sggStream = sggStream;           % Dropping access data that originates from convolutions
 shsStream = sggStream(1:M:end);                         % Sampling at nT
 
 switch option
