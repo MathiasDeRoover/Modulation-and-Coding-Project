@@ -9,15 +9,15 @@ epsOld  = 0;
 eps     = 0;
 outStream = zeros(N,1);
 for n = 1:N-1
-    timeSample1     = (n-1)*((periodToSample*(1 + SCO)) + timeShift - epsOld);
-    timeHalfSample  = (n-1/2)*((periodToSample*(1 + SCO)) + timeShift - eps);
-    timeSample2     = (n)*((periodToSample*(1 + SCO)) + timeShift - eps);
+    timeSample1     = (n-1  + epsOld )  *((periodToSample*(1 + SCO)) + timeShift);
+    timeHalfSample  = (n-1/2  + eps )   *((periodToSample*(1 + SCO)) + timeShift);
+    timeSample2     = (n  + eps)        *((periodToSample*(1 + SCO)) + timeShift);
    
     sample1         = interp1(windTime,windStream,timeSample1);
     halfSample      = interp1(windTime,windStream,timeHalfSample);
     sample2         = interp1(windTime,windStream,timeSample2);
     
-    e(n+1)          = e(n) + 2*K*real( halfSample * (conj(sample2) - conj(sample1)) );
+    e(n+1)          = e(n) - 2*K*real( halfSample * (conj(sample2) - conj(sample1)) );
     eps             = e(n+1);
     epsOld          = e(n);
     outStream(n)    = sample1;

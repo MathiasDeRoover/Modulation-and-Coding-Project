@@ -18,9 +18,9 @@ vLength             = 256;
 SNRdB               = 2000;             % Signal to noise in dB
 deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
 phi0                = 0;                % Phase offset
-delta               = 0;                % Sample clock offset SCO
+delta               = 0.001;            % Sample clock offset SCO
 t0                  = 0;                % Time shift
-K                   = 0;                % K for Gardner
+K                   = 0.1;              % K for Gardner
 
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -38,7 +38,7 @@ stream_mapped       = mapping(stream_coded, bps, modulation);
 stream_upSampled    = upsample(stream_mapped,M);
 
 %% Create window
-[g,g_min]           = CreateWindow(T, fs, ftaps, beta);
+[g,g_min]           = CreateWindow(T/2, fs, ftaps, beta);
 
 
 h = conv(g,g_min,'same');
@@ -67,17 +67,21 @@ stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 %% Truncate & Sample + Sample clock offset and time shift
 stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T/2,fs,delta,t0); % T/2 to have halve samples for Gardner
 
+%% Gardner
+stream_rec_gardner  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
+
+
 figure
 hold on
 t = 0:1/fs:(numel(stream_rec_wind(2*ftaps+1:end))-1)/fs;
 plot(t,real(stream_rec_wind(2*ftaps+1:end)));
 t2 = 0:T/2:(numel(stream_rec_sample)-1)*T/2;
 stem(t2,real(stream_rec_sample));
+t3 = 0:T:(numel(stream_rec_gardner)-1)*T;
+stem(t3,real(stream_rec_gardner));
 hold off
 
 
-%% Gardner
-stream_rec_gardner  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
 %% Demapping
 stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
