@@ -192,10 +192,10 @@ close(wait_bar);
 
 % BPSK%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
-hold on
 legent=[] ;
 for k=1:numel(itlim)
 semilogy(SNR, BPSK_JMG(k,:));
+hold on
 legent{k}=[num2str(itlim(k))];
 end
 hold off
@@ -206,10 +206,10 @@ title({'Comparison of BER for LDPC for different iteration limits','BPSK'})
 
 % QPSK%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
-hold on
 legent=[] ;
 for k=1:numel(itlim)
 semilogy(SNR, QPSK_JMG(k,:));
+hold on
 legent{k}=[num2str(itlim(k))];
 end
 hold off
@@ -220,10 +220,10 @@ title({'Comparison of BER for LDPC for different iteration limits','QPSK'})
 
 % 16QAM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
-hold on
 legent=[] ;
 for k=1:numel(itlim)
 semilogy(SNR, QAM16_JMG(k,:));
+hold on
 legent{k}=[num2str(itlim(k))];
 end
 hold off
@@ -234,10 +234,11 @@ title({'Comparison of BER for LDPC for different iteration limits','QAM16'})
 
 % 64QAM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
-hold on
+
 legent=[] ;
 for k=1:numel(itlim)
 semilogy(SNR, QAM64_JMG(k,:));
+hold on
 legent{k}=[num2str(itlim(k))];
 end
 hold off
