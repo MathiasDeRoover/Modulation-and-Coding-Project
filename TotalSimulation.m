@@ -11,20 +11,19 @@ T                   = 1/symRate;        % Symbol period
 M                   = 10;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 128*6;            % Amount of bits in original stream
+N                   = 128;              % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
-SNRdB               = 2;                % Signal to noise in dB
-deltaW              = 0;                % Carrier frequency offset CFO
+SNRdB               = 2000;             % Signal to noise in dB
+deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
 phi0                = 0;                % Phase offset
 delta               = 0;                % Sample clock offset SCO
 t0                  = 0;                % Time shift
+K                   = 0;                % K for Gardner
 
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
-
-%% Syncronization
 
 %% Create H matrix
 H0                  = CreateHMatrix(cLength,vLength);
@@ -41,6 +40,17 @@ stream_upSampled    = upsample(stream_mapped,M);
 %% Create window
 [g,g_min]           = CreateWindow(T, fs, ftaps, beta);
 
+
+h = conv(g,g_min,'same');
+figure
+hold on
+th = 0:1/fs:(numel(h)-1)*1/fs;
+plot(th,h)
+th2 = 0:T:(numel(h(1:T/1*fs:end))-1)*T;
+stem(th2,h(1:T/1*fs:end));
+hold off
+
+
 %% Apply window
 stream_wind         = conv(stream_upSampled,g);
 
@@ -55,15 +65,25 @@ stream_rec_CFOPhase = AddCFOAndPhase(stream_channel,1/fs,deltaW,phi0);
 stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 
 %% Truncate & Sample + Sample clock offset and time shift
-[stream_rec_sample] = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0);
+stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T/2,fs,delta,t0); % T/2 to have halve samples for Gardner
+
+figure
+hold on
+t = 0:1/fs:(numel(stream_rec_wind(2*ftaps+1:end))-1)/fs;
+plot(t,real(stream_rec_wind(2*ftaps+1:end)));
+t2 = 0:T/2:(numel(stream_rec_sample)-1)*T/2;
+stem(t2,real(stream_rec_sample));
+hold off
+
+
+%% Gardner
+stream_rec_gardner  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
 %% Demapping
-stream_rec_demapped = demapping(stream_rec_sample, bps, modulation);
+stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
 
 %% LDPC decoding
 stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIter);
-
-%% Syncronization
 
 %% Results
 figure
