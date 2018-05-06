@@ -1,4 +1,4 @@
-function [bitStream] = LDPC_decoder_soft_log_BPSK(bitStream_enc, H,sig)
+function [bitStream] = LDPC_decoSoftLog(bitStream_enc, H,sig)
 %LDPC_decoder_soft_log_BPSK Soft decoder in log domain
 %   Soft decoder for the LDPC encoding scheme in log domain. Specifically for BPSK.
 [j_num,i_num] = size(H);

@@ -1,30 +1,31 @@
-function [ bitStream ] = LDPC_decoder_hard_lite_biased( bitStream_enc, H, while_it_limit )
+function [ bitStream ] = LDPC_decoHardOld( bitStream_enc, H )
 %LDPC_decoder_lite Lite version of the LDPC hard decoder.
 %   The hard version for the LDPC decoder.
 [M_H,N_H] = size(H);
 bitStream_enc_blocks    = reshape(bitStream_enc,N_H,numel(bitStream_enc)/N_H)';             % Reshape bitstream back to blocks of code
 bitStream_blocks        = zeros(numel(bitStream_enc)/N_H, M_H);                             % Initialize vector for decoded code blocks
+iterate_lim = 10;
 
-if ~exist('while_it_limit','var')
-        while_it_limit      = 10;
-end
-
+% wait_bar = waitbar(0,'Decoding');
 for i = 1:numel(bitStream_enc)/N_H
-    v_nodes         = bitStream_enc_blocks(i,:);                                            % Decode one block of bits at a time
-    v_nodes_change  = ones(size(v_nodes)) * 0.5;
+    v_nodes = bitStream_enc_blocks(i,:);                                                    % Decode one block of bits at a time
     iterations = 0;
-    while iterations < while_it_limit && any(mod(v_nodes * H',2))
+    iterate = true;
+    while iterate
         c_nodes = mod(sum(v_nodes & H,2),2);                                                % Check comment below
-        temp = (sum(xor(c_nodes,v_nodes)&H) + v_nodes + v_nodes_change) ./ (sum(H)+2);       % Check comment below
+        temp = (sum(xor(c_nodes,v_nodes)&H)+bitStream_enc_blocks(i,:)) ./ (sum(H)+1);       % Check comment below
         temp2 = temp == 0.5;
-        v_nodes_new = and(round(temp),~temp2) + and(v_nodes,temp2);
-        v_nodes_change = v_nodes;
-        v_nodes_change(v_nodes_old == v_nodes) = ~v_nodes(v_nodes_old == v_nodes);
+        v_nodes_new = and(round(temp),~temp2) + and(bitStream_enc_blocks(i,:),temp2);
+        if all(v_nodes_new == v_nodes) || (iterations > iterate_lim)
+            iterate = false;
+        end
         v_nodes = v_nodes_new;
         iterations = iterations + 1;
     end 
     bitStream_blocks(i,:) =  v_nodes(end-M_H+1:end);
+%     waitbar(i/(numel(bitStream_enc)/N_H),wait_bar);
 end
+% close(wait_bar)
 bitStream_blocks = bitStream_blocks';
 bitStream = bitStream_blocks(:);
 end

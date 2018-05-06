@@ -1,4 +1,4 @@
-function [ recStream ] = LDPC_decoder_soft2( inStream, H, sig, it_lim )
+function [ recStream ] = LDPC_decoSoftVec( inStream, H, sig, it_lim )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 

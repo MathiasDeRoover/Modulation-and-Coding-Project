@@ -1,4 +1,4 @@
-function [ bitStream ] = LDPC_decoder_hard_biased( bitStream_enc, H ,while_it_limit )
+function [ bitStream ] = LDPC_decoHardVec( bitStream_enc, H ,while_it_limit )
 %LDPC_DECODER_HARD Decode LDPC encoding.
 %   Decode LDPC encoding using a hard decoding scheme. This method should
 %   go fast and be pretty optimized.
