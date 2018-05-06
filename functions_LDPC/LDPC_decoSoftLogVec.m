@@ -1,4 +1,4 @@
-function [ recStream ] = LDPC_decoder_softLog2( inStream, H, sig, it_lim )
+function [ recStream ] = LDPC_decoSoftLogVec( inStream, H, sig, it_lim )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -28,20 +28,21 @@ while (it<it_lim) && any(any(mod(c * permute(H,[2,3,1]),2)))
     Lr_step3 = repmat(Lr_step2,1,i_num,1);
     Lr_step4 = Lr_step3./Lr_step1;
     
-    Lr_step5 = -log10(atan(Lq_abs/2));
+    Lr_step5 = log10( (exp(Lq_abs)+1) ./ (exp(Lq_abs)-1) );
     Lr_step5(~repmat(H,size(Lr_step5,1),1,1)) = 0;
     Lr_step6 = sum(Lr_step5,2);
-    Lr_step7 = Lr_step6 - Lr_step5;
-    Lr_step8 = -log10(atan(Lr_step7/2));
+    Lr_step7 = repmat(Lr_step6,1,i_num,1);
+    Lr_step8 = Lr_step7 - Lr_step5;
+    Lr_step9 = log10( (exp(Lr_step8)+1) ./ (exp(Lr_step8)-1) );
     
-    Lr = Lr_step4 .* Lr_step8;
+    Lr = Lr_step4 .* Lr_step9;
     
     
     Lq_step1 = Lr;
-    Lq_step1(~repmat(H,size(Lq_step1,1),1,1)) = 1;
-    Lq_step2 = prod(Lq_step1,3);
+    Lq_step1(~repmat(H,size(Lq_step1,1),1,1)) = 0;
+    Lq_step2 = sum(Lq_step1,3);
     Lq_step3 = repmat(Lq_step2,1,1,j_num);
-    Lq_step4 = Lq_step3./Lq_step1;
+    Lq_step4 = Lq_step3 - Lq_step1;
     
     Lq = Lc + Lq_step4;
     

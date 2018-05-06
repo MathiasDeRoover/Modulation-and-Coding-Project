@@ -1,4 +1,4 @@
-function [bitStream] = LDPC_decoder_soft_BPSK(bitStream_enc, H,sig)
+function [bitStream] = LDPC_decoSoft(bitStream_enc, H,sig)
 %LDPC_decoder_soft Soft decoder
 %   Soft decoder for the LDPC encoding scheme. Specifically for BPSK.
 
