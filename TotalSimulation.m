@@ -16,10 +16,10 @@ hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
 SNRdB               = 2000;             % Signal to noise in dB
-deltaW              = 0.3*T;                % Carrier frequency offset CFO 10ppm 10e-6
+deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
 phi0                = 0;                % Phase offset
-delta               = 0.001;                % Sample clock offset SCO
-t0                  = 0;                % Time shift
+delta               = 0;                % Sample clock offset SCO
+t0                  = 0.1*T;                % Time shift
 K                   = 0.1;              % K for Gardner
 
 %% Create bitstream
@@ -76,8 +76,8 @@ stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T/2,fs,delta,t0); 
 % stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0);
 
 %% Gardner
-stream_rec_gardner  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
-
+% stream_rec_gardner  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
+stream_rec_gardner = stream_rec_sample(1:2:end);
 plotLim = 10;
 
 figure
@@ -85,7 +85,7 @@ hold on
 t = 0:1/fs:(numel(stream_rec_wind(2*ftaps+1:end))-1)/fs;
 stream_rec_wind_plot = real(stream_rec_wind(2*ftaps+1:end));
 % plot(t,stream_rec_wind_plot); %full plot
-stem(t(1:plotLim*M),stream_rec_wind_plot(1:plotLim*M));
+plot(t(1:plotLim*M),stream_rec_wind_plot(1:plotLim*M));
 
 t2 = 0:T/2:(numel(stream_rec_sample)-1)*T/2;
 stream_rec_sample_plot = real(stream_rec_sample);
