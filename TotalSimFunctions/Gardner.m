@@ -1,9 +1,9 @@
-function [outStream] = Gardner(inStream, K, windStream, ftaps, windFrequency, periodToSample,SCO, timeShift)
+function [outStream, e] = Gardner(inStream, K, windStream, ftaps, windFrequency, periodToSample,SCO, timeShift)
 %GARDNER Summary of this function goes here
 %   Detailed explanation goes here
 % timeShift = 0;              
 % SCO = 0;                    
-N = numel(inStream)/2;
+N = numel(inStream);
 e = zeros(N,1);
 windStream  = windStream(2*ftaps+1:end);
 windTime    = ((1:numel(windStream))-1)/windFrequency;
@@ -34,24 +34,5 @@ for n = 1:N-1
     outStream(n)    = sample1;
 end
 outStream(N)        = sample2;
-
-% This could be moved outside of function if e is given as output parameter
-% errorPlot = (e>5e-7).*e;                    % Very small errors are negligible
-% avg = 1/50*ones(1,50);
-% errorPlot = conv(e,avg,'same');
-% errorPlot = e*periodToSample-timeShift;
-% figure
-% plot(errorPlot)
-% title('Error in function of iterations')
-% To remove monotonic decrease of error in case CFO and timeShift are
-% perfectly known
-% diff_e = diff(e);
-% figure
-% plot(diff_e)
-% title('diff_e')
-
-% inStreamSampled = inStream(1:2:end);
-% figure
-% plot(abs(inStreamSampled-outStream))
 end
 
