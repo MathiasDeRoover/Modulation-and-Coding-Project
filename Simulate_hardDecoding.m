@@ -5,7 +5,7 @@ clc
 addpath(genpath(pwd))
 
 %% Run Simulations
-N                           = 60*2;   % Number of Points
+N                           = 6*128;   % Number of Points
 c_length                    = 128;
 v_length                    = 256;
 bitStream                   = CreateBitStream(N,c_length);
@@ -29,7 +29,7 @@ for m = 1:4
     wait_bar = waitbar(0,'please wait...');
     for i = 1:numel(SNR)
         
-        bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),modu{m},'det',bitStream));
+        bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),modu{m},'det'));
         
         bitStream_chan_det_block    = reshape(bitStream_chan,v_length,[]);
         bitStream_rec_block         = bitStream_chan_det_block(end-c_length+1:end,:);

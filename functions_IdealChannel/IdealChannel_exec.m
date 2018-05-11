@@ -1,8 +1,5 @@
-% <<<<<<< HEAD
-% function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,uncoded)
-% =======
-function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,varargin )
-% >>>>>>> 3371e29d63926aff9dd34ae9e9fb9db4350affb4
+
+function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option )
 %IdealChannel_exec A function to execute the ideal channel calculations
 %   Takes an input stream, SNR and modulation method.
 
@@ -10,13 +7,6 @@ function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,vararg
 ftaps   = 80;            % Amount of causal (and non causal) filter taps
 symRate = 2*1e6;         % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T       = 1/symRate;     % Symbol period
-
-% Varargin is the uncoded bitstream
-if nargin == 4
-    bitStreamUncoded = in_stream;
-else
-    bitStreamUncoded = varargin{1};
-end
 
 %% Tranceiver
 switch modu
@@ -59,9 +49,8 @@ g = fftshift(ifft(G,'symmetric'));                      % Transform G to the tim
 sgStream = conv(supStream,g);                           % Windowing upStream in the frequencyDomain with g(t)
 
 %% Ideal Channel
-% SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);  % Total signal energy (this is given in slides) %Trapz is integral approx.
-SignalEnergy = (trapz(abs(bitStreamUncoded).^2))*(1/fs);
-Eb = SignalEnergy / numel(bitStreamUncoded);                   % Energy for a single bit? see slides
+SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);  % Total signal energy (this is given in slides) %Trapz is integral approx.
+Eb = SignalEnergy / numel(sgStream);                   % Energy for a single bit? see slides
 Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
 EbN0 = db2mag(SNR*2);                                   % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
 N0 = Eb/EbN0;
