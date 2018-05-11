@@ -17,10 +17,11 @@ bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];    % Unite pari
 bitStream_cod               = reshape(bitStream_cod_blk,[],1);
 
 modu = {'BPSK','QPSK','16QAM','64QAM'};
-f1 = figure;
-f2 = figure;
+% f1 = figure;
+% f2 = figure;
 
 SNR = linspace(-20,20,100);
+figure
 for m = 1:4
     noDecBer = zeros(size(SNR));
     hard1ber = zeros(size(SNR));
@@ -46,7 +47,7 @@ for m = 1:4
     close(wait_bar)
     
     %% Plotting results
-    figure(f1)
+%     figure(f1)
     subplot(2,2,m)
     semilogy(SNR,noDecBer)
     hold on
@@ -67,15 +68,15 @@ for m = 1:4
     legend('No decoding','hard decode','no dec theory')
     title(modu(m))
     
-    figure(f2)
-    subplot(2,2,m)
-    hold on
-    plot(SNR,hard1t)
-    hold off
-    ylabel('timing [s]')
-    xlabel('SNR')
-    legend('hard decode')
-    title(modu{m})
+%     figure(f2)
+%     subplot(2,2,m)
+%     hold on
+%     plot(SNR,hard1t)
+%     hold off
+%     ylabel('timing [s]')
+%     xlabel('SNR')
+%     legend('hard decode')
+%     title(modu{m})
 end
 
 rmpath(genpath(pwd))

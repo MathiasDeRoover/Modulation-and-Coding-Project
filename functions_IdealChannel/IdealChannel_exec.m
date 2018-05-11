@@ -50,7 +50,7 @@ sgStream = conv(supStream,g);                           % Windowing upStream in 
 
 %% Ideal Channel
 SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);  % Total signal energy (this is given in slides) %Trapz is integral approx.
-Eb = SignalEnergy / numel(sgStream);                   % Energy for a single bit? see slides
+Eb = SignalEnergy / numel(bitStream);                   % Energy for a single bit? see slides
 Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
 EbN0 = db2mag(SNR*2);                                   % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
 N0 = Eb/EbN0;
@@ -64,12 +64,12 @@ sgStream = sgStream + noise;
 gmin=fliplr(g);                                         % Converting g(t) to g(-t) to get matched filter
 switch modulation                                       % Windowing downStream in the frequencyDomain with g(-t)
     case 'pam'
-        sggStream = real(conv(sgStream,gmin,'same'));          % Taking real because noise is complex and pam signal is real.
+        sggStream = real(conv(sgStream,gmin));          % Taking real because noise is complex and pam signal is real.
     otherwise
-        sggStream = conv(sgStream,gmin,'same');                % Noise and qam signal are complex.
+        sggStream = conv(sgStream,gmin);                % Noise and qam signal are complex.
 end
 
-sggStream = sggStream;           % Dropping access data that originates from convolutions
+sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
 shsStream = sggStream(1:M:end);                         % Sampling at nT
 
 switch option
