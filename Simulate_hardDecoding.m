@@ -66,6 +66,7 @@ for m = 1:4
     ylabel('BER')
     xlabel('SNR')
     legend('No decoding','hard decode','no dec theory')
+%     grid on
     title(modu(m))
     
 %     figure(f2)
