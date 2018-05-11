@@ -21,8 +21,8 @@ N           = 768*20;   % Number of symbols
 bps         = 1;    % Bits per symbol
 
 wait_bar = waitbar(0,'Simulating');
-% itlim = [1 2 5 7 9 10];
-itlim = [1 10 50 100];
+itlim = [1 2 5 7 9 10];
+% itlim = [1 10 50 100];
 for j = 1:numel(itlim)
     for i=1:length(SNR)
         bitStream   = CreateBitStream( N,bps );
@@ -47,10 +47,10 @@ for j = 1:numel(itlim)
         bitSCoded       = reshape(bitSCBlock,[],1);
 
     %% Send over channel
-        receivedStream1 = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det',bitStream);
-        receivedStream2 = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det',bitStream);
-        receivedStream3 = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det',bitStream);
-        receivedStream4 = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det',bitStream);
+        receivedStream1 = IdealChannel_exec(bitSCoded,SNR(i),'BPSK','det');
+        receivedStream2 = IdealChannel_exec(bitSCoded,SNR(i),'QPSK','det');
+        receivedStream3 = IdealChannel_exec(bitSCoded,SNR(i),'16QAM','det');
+        receivedStream4 = IdealChannel_exec(bitSCoded,SNR(i),'64QAM','det');
 
     %% Decode bitstream
         hardDecoded1    = LDPC_decoder_hard_biased( receivedStream1, Hs, itlim(j) );
