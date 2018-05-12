@@ -1,4 +1,4 @@
-function [outStream, e] = Gardner(inStream, K, windStream, ftaps, windFrequency, periodToSample,SCO, timeShift)
+function [outStream, T_est] = Gardner(inStream, K, windStream, ftaps, windFrequency, periodToSample,SCO, timeShift)
 %GARDNER Summary of this function goes here
 %   Detailed explanation goes here
 % timeShift = 0;              
@@ -9,7 +9,8 @@ windStream  = windStream(2*ftaps+1:end);
 windTime    = ((1:numel(windStream))-1)/windFrequency;
 epsOld  = 0;
 eps     = 0;
-outStream = zeros(N,1);
+outStream   = zeros(N,1);
+T_est       = zeros(N,1);
 for n = 1:N-1
     timeSample1     = ((n-1  - epsOld )  *((periodToSample*(1 + SCO)))) + timeShift;
     timeHalfSample  = ((n-1/2  - eps )   *((periodToSample*(1 + SCO)))) + timeShift;
@@ -32,7 +33,9 @@ for n = 1:N-1
     eps             = e(n+1);
     epsOld          = e(n);
     outStream(n)    = sample1;
+    T_est(n)        = timeSample2-timeSample1;
 end
+T_est(N)            = timeSample2-timeSample1;
 outStream(N)        = sample2;
 end
 

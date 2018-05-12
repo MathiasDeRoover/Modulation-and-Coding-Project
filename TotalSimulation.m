@@ -3,7 +3,7 @@ close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
-modu = 'BPSK';
+modu = 'QPSK';
 [modulation,bps]    = ModuToModulation(modu);
 ftaps               = 80;               % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
@@ -15,15 +15,16 @@ N                   = 128*6;            % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
-SNRdB               = 2000;             % Signal to noise in dB
+SNRdB               = 200;              % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 2e-6;             % 2 parts per million
 deltaW              = fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6
-% deltaW = 0;
 phi0                = 0;                % Phase offset
 delta               = 0.01;             % Sample clock offset SCO
 t0                  = 0;                % Time shift
 K                   = 0.06;             % K for Gardner
+
+%deltaW = 0;
 
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -41,11 +42,11 @@ stream_mapped       = mapping(stream_coded, bps, modulation);
 pilotL = 24;            % Note: this value should be divisable by 6 in case of 64QAM
 % pilotFreq = 0.10;
 nrOfPilots = 3;
-[stream_mapped_pilots, pilot] = addPilots(stream_mapped,pilotL, nrOfPilots, 'BPSK');
+[stream_mapped_pilots, pilot] = addPilots(stream_mapped, pilotL, nrOfPilots, 'BPSK');
 
 % Test
-testPilots = zeros(N*2,1);
-[testPlot, ~] = addPilots(testPilots,pilotL, nrOfPilots, 'BPSK');
+testPilots = zeros(size(stream_mapped));
+[testPlot, ~] = addPilots(testPilots,pilotL, nrOfPilots, modu);
 figure
 stem(abs(testPlot))
 ylim([-1.1,1.1])
@@ -71,21 +72,22 @@ stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 
 %% Truncate & Sample + Sample clock offset and time shift
 stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
-% stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0);
+% stream_rec_sample = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0);
 
 %% Gardner
-[stream_rec_gardner, epsilon]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
-% stream_rec_gardner = stream_rec_sample(1:2:end);
+[stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
+%stream_rec_gardner = stream_rec_sample(1:2:end);
+T_est = ones(size(stream_rec_gardner))*T;
 
 %% Pilot ToA estimation
 K = 10;
-% k = 1:K;
+k = 1:K;
 k = 1;
 I_n = stream_rec_gardner;
 Dk = zeros(size(I_n));
-
-% N in slides is the lenght of the pilot sequence
-
+% 
+% % N in slides is the lenght of the pilot sequence
+% 
 Cte = 1/(pilotL-k)*exp(-1j*deltaW*k*T);
 tic
 for n=1:length(I_n)-pilotL                  % -pilotL such that I_n(n+l+1) cannot go out of bounds
@@ -99,9 +101,9 @@ toc
 figure
 plot(real(Dk))
 ylim([-1.1,1.1])
-
-% Find peak indices
-peakIndices = find(Dk>0.95)
+% 
+% % Find peak indices
+% peakIndices = find(Dk>0.95);
 
 % Some more attempts to find peaks
 % [pks,locs] = findpeaks(real(Dk(peakIndices)))      % This never finds first peak?
@@ -114,7 +116,7 @@ peakIndices = find(Dk>0.95)
 % [pks,locs] = findpeaks(real(Dk0))
 
 %% Demapping
-stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
+stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);
 
 %% LDPC decoding
 stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIter);
@@ -130,11 +132,11 @@ stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIte
 % stem(th2,h(1:T/1*fs:end));
 % hold off
 % 
-% % Plot result
-% figure
-% stem(stream_rec_decoded~=stream_bit);
-% ylim([-1.1,1.1])
-% title('Errors after demapping and decoding')
+% Plot result
+figure
+stem(stream_rec_decoded~=stream_bit);
+ylim([-1.1,1.1])
+title('Errors after demapping and decoding')
 % 
 % % If you get 'Index exceeds matrix dimensions', you probably have to change
 % % plotBegin and -End
