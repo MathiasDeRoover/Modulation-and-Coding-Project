@@ -11,16 +11,16 @@ T                   = 1/symRate;        % Symbol period
 M                   = 10;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 128;              % Amount of bits in original stream
+N                   = 128*6;            % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
 SNRdB               = 2000;             % Signal to noise in dB
 deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
 phi0                = 0;                % Phase offset
-delta               = 0.001;            % Sample clock offset SCO
+delta               = 0.01;             % Sample clock offset SCO
 t0                  = 0;                % Time shift
-K                   = 0.1;              % K for Gardner
+K                   = 0.06;             % K for Gardner
 
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -38,7 +38,7 @@ stream_mapped       = mapping(stream_coded, bps, modulation);
 stream_upSampled    = upsample(stream_mapped,M);
 
 %% Create window
-[g,g_min]           = CreateWindow(T/2, fs, ftaps, beta);
+[g,g_min]           = CreateWindow(T, fs, ftaps, beta);
 
 
 h = conv(g,g_min,'same');
