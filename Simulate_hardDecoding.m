@@ -5,10 +5,10 @@ clc
 addpath(genpath(pwd))
 
 %% Run Simulations
-N                           = 6*128;   % Number of Points
+N                           = 768;   % Number of Points
 c_length                    = 128;
 v_length                    = 256;
-bitStream                   = CreateBitStream(N,c_length);
+bitStream                   = CreateBitStream(N,1);
 H0                          = makeLdpc(c_length,v_length,0,1,3);
 
 bitStream_blk               = reshape(bitStream,c_length,[]);
@@ -17,11 +17,10 @@ bitStream_cod_blk           = [bitStream_cod_blk;bitStream_blk];    % Unite pari
 bitStream_cod               = reshape(bitStream_cod_blk,[],1);
 
 modu = {'BPSK','QPSK','16QAM','64QAM'};
-% f1 = figure;
-% f2 = figure;
+f1 = figure;
+f2 = figure;
 
 SNR = linspace(-20,20,100);
-figure
 for m = 1:4
     noDecBer = zeros(size(SNR));
     hard1ber = zeros(size(SNR));
@@ -30,7 +29,7 @@ for m = 1:4
     wait_bar = waitbar(0,'please wait...');
     for i = 1:numel(SNR)
         
-        bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),modu{m},'det'));
+        bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),modu{m},'det',bitStream));
         
         bitStream_chan_det_block    = reshape(bitStream_chan,v_length,[]);
         bitStream_rec_block         = bitStream_chan_det_block(end-c_length+1:end,:);
@@ -47,7 +46,7 @@ for m = 1:4
     close(wait_bar)
     
     %% Plotting results
-%     figure(f1)
+    figure(f1)
     subplot(2,2,m)
     semilogy(SNR,noDecBer)
     hold on
@@ -69,15 +68,15 @@ for m = 1:4
 %     grid on
     title(modu(m))
     
-%     figure(f2)
-%     subplot(2,2,m)
-%     hold on
-%     plot(SNR,hard1t)
-%     hold off
-%     ylabel('timing [s]')
-%     xlabel('SNR')
-%     legend('hard decode')
-%     title(modu{m})
+    figure(f2)
+    subplot(2,2,m)
+    hold on
+    plot(SNR,hard1t)
+    hold off
+    ylabel('timing [s]')
+    xlabel('SNR')
+    legend('hard decode')
+    title(modu{m})
 end
 
 rmpath(genpath(pwd))

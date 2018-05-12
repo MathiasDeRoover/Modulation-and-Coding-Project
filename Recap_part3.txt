@@ -1,0 +1,15 @@
+
+
+CFO max carrier freq/ppm
+SCO max sample clock freq/ppm
+FPE 0--> 2pi
+sampling time shift 0--> symbol duration
+
+
+Gardner: Get rid of wrong sampling(CSO+sampling time shift)
+Frame estimation: Detect where pilots begin and estimate CFO
+	--> CFO can be compensated in next data (enough to get rid of ISI)
+--> Still linear varying phase over time
+	--> Estimate by linearly estimating phase between 2 pilots
+	
+	
