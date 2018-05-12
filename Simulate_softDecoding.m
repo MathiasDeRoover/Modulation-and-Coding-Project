@@ -32,7 +32,7 @@ softLogT   = zeros(size(SNR));
 wait_bar = waitbar(0,'please wait...');
 for i = 1:numel(SNR)
     
-    bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),'BPSK','no_det',bitStream));
+    bitStream_chan = real(IdealChannel_exec(bitStream_cod,SNR(i),'BPSK','no_det'));
     sigma = std(real(bitStream_chan(real(bitStream_chan)>0)));
     bitStream_chan_det = real(bitStream_chan) > 0;
     

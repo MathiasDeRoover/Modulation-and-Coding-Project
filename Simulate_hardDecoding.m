@@ -5,10 +5,10 @@ clc
 addpath(genpath(pwd))
 
 %% Run Simulations
-N                           = 60*2;   % Number of Points
+N                           = 768;   % Number of Points
 c_length                    = 128;
 v_length                    = 256;
-bitStream                   = CreateBitStream(N,c_length);
+bitStream                   = CreateBitStream(N,1);
 H0                          = makeLdpc(c_length,v_length,0,1,3);
 
 bitStream_blk               = reshape(bitStream,c_length,[]);
@@ -65,6 +65,7 @@ for m = 1:4
     ylabel('BER')
     xlabel('SNR')
     legend('No decoding','hard decode','no dec theory')
+%     grid on
     title(modu(m))
     
     figure(f2)

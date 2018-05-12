@@ -1,4 +1,5 @@
-function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,varargin )
+
+function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option )
 %IdealChannel_exec A function to execute the ideal channel calculations
 %   Takes an input stream, SNR and modulation method.
 
@@ -6,13 +7,6 @@ function [ output_stream ] = IdealChannel_exec( in_stream,SNR,modu,option,vararg
 ftaps   = 80;            % Amount of causal (and non causal) filter taps
 symRate = 2*1e6;         % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T       = 1/symRate;     % Symbol period
-
-% Varargin is the uncoded bitstream
-if nargin == 4
-    bitStreamUncoded = in_stream;
-else
-    bitStreamUncoded = varargin{1};
-end
 
 %% Tranceiver
 switch modu
@@ -39,7 +33,7 @@ end
 
 symStream = mapping(bitStream, bps, modulation);
 
-M = 10;                                                 % UpSample factor
+M = 2;                                                 % UpSample factor
 fs = symRate * M;                                       % Sample Frequency
 supStream = upsample(symStream,M);
 
@@ -52,12 +46,11 @@ H = fft(h);                                             % Transforming the norma
 G = sqrt(H);                                            % G is the square root of H so that G*G = H (after the convolutions)
 g = fftshift(ifft(G,'symmetric'));                      % Transform G to the time domain. Fftshift is needed to get a proper raised cosine
 
-sgStream = conv(supStream,g);                           % Windowing upStream in the frequencyDomain with g(t)
+sgStream = conv(supStream,g,'same');                           % Windowing upStream in the frequencyDomain with g(t)
 
 %% Ideal Channel
-% SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);  % Total signal energy (this is given in slides) %Trapz is integral approx.
-SignalEnergy = (trapz(abs(bitStreamUncoded).^2))*(1/fs);
-Eb = SignalEnergy / numel(bitStreamUncoded);                   % Energy for a single bit? see slides
+SignalEnergy = (trapz(abs(sgStream(ftaps+1:end-(ftaps-1))).^2))*(1/fs);  % Total signal energy (this is given in slides) %Trapz is integral approx.
+Eb = SignalEnergy / numel(bitStream);                   % Energy for a single bit? see slides
 Eb = Eb/2;                                              % The power of a bandpass signal is equal to the power of its complex envelope divided by 2
 EbN0 = db2mag(SNR*2);                                   % Variable SNR; factor 2 because we are working with powers, not amplitudes: powerdB = 10*log10(power) vs amplitudedB = 20*log10(amplitude)
 N0 = Eb/EbN0;
@@ -71,12 +64,12 @@ sgStream = sgStream + noise;
 gmin=fliplr(g);                                         % Converting g(t) to g(-t) to get matched filter
 switch modulation                                       % Windowing downStream in the frequencyDomain with g(-t)
     case 'pam'
-        sggStream = real(conv(sgStream,gmin));          % Taking real because noise is complex and pam signal is real.
+        sggStream = real(conv(sgStream,gmin,'same'));          % Taking real because noise is complex and pam signal is real.
     otherwise
-        sggStream = conv(sgStream,gmin);                % Noise and qam signal are complex.
+        sggStream = conv(sgStream,gmin,'same');                % Noise and qam signal are complex.
 end
 
-sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
+% sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
 shsStream = sggStream(1:M:end);                         % Sampling at nT
 
 switch option

@@ -1,7 +1,7 @@
-function [outStream] = AddCFOAndPhase(inStream,streamT,CFO,phaseOffset)
+function [outStream] = AddCFOAndPhase(inStream,streamFrequency,CFO,phaseOffset)
 %ADDCFOANDPHASE Add CFO and phase offset
 %   Add CFO and phase offset
-t = ((1:numel(inStream))-1)*streamT;
+t = ((1:numel(inStream))-1)/streamFrequency;
 outStream = inStream .* exp( 1i * (CFO*t' + phaseOffset) );
 end
 
