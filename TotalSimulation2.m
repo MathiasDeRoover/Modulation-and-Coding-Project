@@ -15,15 +15,15 @@ N                   = 128*6;            % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
-SNRdB               = 10;               % Signal to noise in dB
+SNRdB               = 200;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 2e-6;             % 2 parts per million
-deltaW              = fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6
+deltaW              = fc*ppm;                % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
-delta               = 0.01;             % Sample clock offset SCO
+delta               = 0;             % Sample clock offset SCO 0.01
 t0                  = 0;                % Time shift
 K                   = 0.06;             % K for Gardner
-pilotLength         = 50; 
+pilotLength         = 22; 
 pilotSymbols        = [0 1];
 dataBlockLength     = 200;
 K_toa               = 10;
@@ -93,7 +93,17 @@ title('Errors after demapping and decoding')
 figure
 hold on
 scatter(real(stream_rec_sample),imag(stream_rec_sample));
+scatter(real(stream_rec_gardner),imag(stream_rec_gardner));
+title('Gardner')
+legend('wrong sampling','after Gardner')
+hold off
+
+figure
+hold on
+scatter(real(stream_rec_gardner),imag(stream_rec_gardner));
 scatter(real(stream_rec_toa),imag(stream_rec_toa));
+title('Pilots');
+legend('after Gardner','after ToA')
 hold off
 
 rmpath(genpath(pwd))
