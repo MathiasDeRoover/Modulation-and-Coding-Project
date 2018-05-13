@@ -1,10 +1,6 @@
 function [dataOut,paddLength,pilot] = PilotAndPadd(dataIn,dataBlockLength,pilotSymbols,pilotBlockLength,varargin)
 %PILOTANDPADD Interweaves pilots and padds.
 %   Interweaves pilots and padds
-if(mod(pilotBlockLength,numel(pilotSymbols))~=0)
-    error('pilotBlockLength needs to be a multitude of pilotSymbols length')
-end
-
 if nargin>4
    modu = varargin{1};
    [modulation,bps] = ModuToModulation(modu);
@@ -12,6 +8,10 @@ if nargin>4
       error(['pilotsymbol length needs to be a multitide of bps:',num2str(bps)]);
    end
    pilotSymbols = mapping(pilotSymbols',bps,modulation);
+end
+
+if(mod(pilotBlockLength,numel(pilotSymbols))~=0)
+    error('pilotBlockLength needs to be a multitude of pilotSymbols length')
 end
 
 dataIn = dataIn(:);             % Convert to column

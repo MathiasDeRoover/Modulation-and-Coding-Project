@@ -11,7 +11,7 @@ T                   = 1/symRate;        % Symbol period
 M                   = 10;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 128*6;            % Amount of bits in original stream
+N                   = 128*6*4;            % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
@@ -23,8 +23,9 @@ phi0                = 0;                % Phase offset
 delta               = 0;             % Sample clock offset SCO 0.01
 t0                  = 0;                % Time shift
 K                   = 0.06;             % K for Gardner
-pilotLength         = 22; 
-pilotSymbols        = [0 1];
+pilotLength         = 20; 
+%pilotSymbols        = [0 1 0 1 1 0 1 1];
+pilotSymbols        = [0 1 1 0 1 0 1 1];
 dataBlockLength     = 200;
 K_toa               = 10;
 
@@ -69,7 +70,8 @@ stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % 
 [stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
 %% Pilot ToA estimation
-[stream_rec_toa] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilot,K_toa,T_est,'plot');
+dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)
+[stream_rec_toa] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
 
 %% Demapping
 stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);
@@ -81,8 +83,8 @@ stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIte
 
 hold on
 tmp = zeros(size(stream_mapped_pilots));
-tmp(dataBlockLength:dataBlockLength+pilotLength:numel(stream_mapped_pilots)) = 1;
-plot(tmp)
+tmp(dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)) = 1;
+stem(tmp)
 hold off
 
 figure
