@@ -34,12 +34,12 @@ end
 
 symStream = mapping(bitStream, bps, modulation);
 
-M = 4;                                                  % UpSample factor
+M = 50;                                                  % UpSample factor
 fs = symRate * M;                                       % Sample Frequency 
 supStream = upsample(symStream,M);
 
 beta = 0.3;                                             % Roll off factor
-H = RRCFilter( T,fs,beta,ftaps )';                      % Creating the window
+H = RRCFilter( T,fs,beta,ftaps ).';                      % Creating the window
 h = ifft(H,'symmetric');                                % Transforming to the time domain
 h = h/h(1);                                             % Normalizing the window in the time domain
 H = fft(h);                                             % Transforming the normalized window back to the frequency domain
@@ -51,7 +51,11 @@ sgStream = conv(supStream,g);                           % Windowing upStream in 
 
 %%% Plotting the window
 plot_f = -fs/2:fs/2/ftaps:fs/2-fs/2/ftaps;                  % Frequency axis window 
+% plot_t = (-floor(numel(h)/2):1:floor(numel(h)/2)-1)*1/fs;   % Time axis window
+
 plot_t = (-floor(numel(h)/2):1:floor(numel(h)/2)-1)*1/fs;   % Time axis window
+
+
 % plot_f = -fs/2:fs/2/ftaps:fs/2;                         % Frequency axis window 
 % plot_t = (-floor(numel(h)/2):1:floor(numel(h)/2))*1/fs; % Time axis window
 plot_H = fftshift(real(H));                             % H ready to plot
@@ -131,7 +135,7 @@ switch modulation                                       % Windowing downStream i
         sggStream = conv(sgStream,gmin);                % Noise and qam signal are complex.
 end
 
-sggStream = sggStream(2*ftaps+1:end-2*ftaps);           % Dropping access data that originates from convolutions
+sggStream = sggStream(2*ftaps:end-2*ftaps+1);           % Dropping access data that originates from convolutions
 shsStream = sggStream(1:M:end);                         % Sampling at nT
 recStream = demapping(shsStream, bps, modulation);      % Demapping
 
@@ -150,7 +154,7 @@ figure()
 hold on
 stem(plot_t2,bitStream-recStream);
 hold off
-title('Original bitsream minus Recovered bitstream')
+title('Original bitstream minus Recovered bitstream')
 xlabel('time [s]')
 ylabel('Correct if = 0')
 %%%

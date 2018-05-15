@@ -20,7 +20,7 @@ fc                  = 2e9;              % 2 GHz carrier freq is given as example
 ppm                 = 2e-6;             % 2 parts per million
 deltaW              = fc*ppm;                % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
-delta               = 0;             % Sample clock offset SCO 0.01
+delta               = 0;                % Sample clock offset SCO 0.01
 t0                  = 0;                % Time shift
 K                   = 0.06;             % K for Gardner
 pilotLength         = 22; 
@@ -53,7 +53,7 @@ stream_upSampled    = upsample(stream_mapped_pilots,M);
 stream_wind         = conv(stream_upSampled,g);
 
 %% Sending through channel
-noisePower          = CalcNoisePower(stream_bit,1/fs,SNRdB,fs); %%%!!!!!!!!!!!!!!!
+noisePower          = CalcNoisePower(stream_bit, stream_wind,1/fs,SNRdB,fs); %%%!!!!!!!!!!!!!!!
 stream_channel      = Channel(stream_wind,noisePower);
 
 %% CFO + Phase offset
