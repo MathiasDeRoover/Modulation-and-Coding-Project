@@ -73,6 +73,16 @@ stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % 
 dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)
 [stream_rec_toa] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
 
+%% TEST 
+%Just ignore this
+% stream_rec_sample   = TruncateAndSample(stream_rec_CFOPhase,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
+% 
+% [stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_CFOPhase, ftaps, fs, T,delta, t0);
+% 
+% dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)
+% [stream_rec_toa] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
+% 
+% stream_rec_toa     = conv(stream_rec_toa,g_min); %TEST
 %% Demapping
 stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);
 
