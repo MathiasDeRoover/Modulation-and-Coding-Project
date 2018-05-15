@@ -4,7 +4,7 @@ function [outStream, T_est, e] = Gardner(inStream, K, windStream, ftaps, windFre
 % sample 161 of windStream is the first symbol that is tranmitted  
 N = numel(inStream);
 e = zeros(N,1);
-windStream  = windStream(2*ftaps+1:end);
+% windStream  = windStream(2*ftaps+1:end);
 windTime    = ((1:numel(windStream))-1)/windFrequency;
 epsOld  = 0;
 eps     = 0;
