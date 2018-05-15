@@ -14,5 +14,7 @@ tq            = (0:periodToSample:tend) *(1 + SCO) + timeShift; % Analoog
 % figure
 % stem((0:periodToSample:tend) - ((1:(tend/periodToSample)+1)-1)*(periodToSample)>1e-3) % This gives strange results (probably numeric rounding errors)
 outStream       = interp1(t2,truncStream,tq)';
+
+%interp1:truncStream=F(t2)-> find outstream=F(tq)
 end
 
