@@ -1,4 +1,4 @@
-function [dataOut] = dePilotAndDePadd(dataIn,paddLength,pilotLength,dataLength,pilot,K,T,varargin)
+function [dataOut,deltaf] = dePilotAndDePadd(dataIn,paddLength,pilotLength,dataLength,pilot,K,T,varargin)
 %DEPILOTANDDEPADD Depilot and depadd
 %   Depilot, depadd, frame and frequency aquisistion
 dataIn = dataIn(:);
@@ -9,47 +9,47 @@ dataLen = numel(dataIn);
 N   = numel(pilot);
 K_vec   = (1:K)';
 Dk  = zeros(numel(K_vec),dataLen);
-% for ki = 1:numel(K_vec)
-%     k        = K_vec(ki);
-%     n        = k+1:dataLen-N;
-%     l        = (k+1:N)';
-%     Dk(ki,n) = 1/(N-k).*sum((conj(dataIn(n+l-1)).*repmat(pilot(l),1,size(n,2))).*conj(conj(dataIn(n+l-1-k)).*repmat(pilot(l-k),1,size(n,2))),1);
-% end
 for ki = 1:numel(K_vec)
-    k        = K_vec(ki);
-    n        = k:dataLen-N+1;
-    l        = (k:N-1)';
-    Dk(ki,n) = 1/(N-k).*sum( (conj(dataIn(n+l)).*pilot(l+1)) .* conj(conj(dataIn(n+l-k)).*pilot(l-k+1)),1);
+    k          = K_vec(ki);
+    n          = k:dataLen-N+1;
+    n          = 0:dataLen-N;
+    l          = (k:N-1)';
+    Dk(ki,n+1) = 1/(N-k).*sum( (conj(dataIn(n+l+1)).*pilot(l+1)) .* conj(conj(dataIn(n+l-k+1)).*pilot(l-k+1)),1);
 end
 
+Dk_abs   = sum(abs(Dk));
+Dk_angle = sum(angle(Dk)./K_vec);
 
-Dk_absSum = sum(abs(Dk));
+Dk_block_abs   = reshape(Dk_abs,pilotLength+dataLength,[]);
 
-[~,n_est] = max(Dk_absSum);
-delta_f   = -1/K * sum(  angle(Dk(K_vec,n_est)) ./ (2*pi*K_vec*T(n_est)) );
+[~,block_n_est] = max(Dk_block_abs);
+n_est = block_n_est + (0:numel(block_n_est)-1)*(pilotLength+dataLength);
 
-time_vec  = cumsum(T);
-time_vec  = [0;time_vec(1:end-1)];
+[~,n_est2] = max(Dk_abs);
+deltaf = median(-1./(2*K*pi*T(n_est)') .* Dk_angle(n_est));
 
-dataOut = dataIn .* exp( -1i * 2*pi*delta_f*time_vec );
-%dataOut = dataIn .* exp( -1i * 4000*time_vec );
 
-% [~,n_est] = findpeaks([0,Dk_absSum],'MinPeakHeight',0.3,'MinPeakProminence',(max(Dk_absSum)-mean(Dk_absSum))*3/4);
-% n_est = n_est-1;
+disp(deltaf*2*pi)
 
-n_est = [ fliplr(n_est:-(pilotLength+dataLength):1), (n_est+pilotLength+dataLength:pilotLength+dataLength:dataLen) ]
+time_vec = cumsum(T);
+time_block_vec = reshape(time_vec,pilotLength+dataLength,[]);
 
-% 
-% delta_f = -1/K .* sum( angle(Dk(K_vec,n_est)) ./ (2*pi*K_vec*T(n_est)'));
-% delta_f = interp1(n_est,delta_f,1:numel(dataIn),'linear',0)';
-% dataOut = dataIn .* exp( -1i*2*pi* delta_f );
-%
+dataIn_block = reshape(dataIn,pilotLength+dataLength,[]);
+
+dataOut_block = dataIn_block .* exp(-1i*2*pi*deltaf*time_block_vec);
+dataOut = dataOut_block(:);
+
+
+tmp = [dataOut_block;zeros(size(dataOut_block))];
+phas = zeros(1,numel(dataOut));
+phas(n_est(1):n_est(1)+pilotLength-1) = angle(tmp(block_n_est(1):block_n_est(1)-1+pilotLength,1));
+for i=2:numel(n_est)
+    phas(n_est(i):n_est(i)+pilotLength-1) =  angle(tmp(block_n_est(i):block_n_est(i)-1+pilotLength,i))-angle(tmp(block_n_est(i-1):block_n_est(i-1)-1+pilotLength,i-1));
+end
+phas = interp1(n_est,phase_vec,1:numel(dataOut),'linear','extrap');
+dataOut = dataOut .* exp(1i*phas');
+
 dataOut = [dataOut;zeros(pilotLength,1)];
-
-% angle_pilots = mean(wrapTo2Pi(angle(dataOut(n_est+(0:numel(pilot)-1)'))) - wrapTo2Pi(angle(pilot)));
-% angle_data   = interp1(n_est,angle_pilots,1:numel(dataOut),'linear',0)';
-% dataOut      = dataOut .* exp(-1i*angle_data);
-
 dataOut(n_est'+(0:numel(pilot)-1)) = [];        % Delete pilots
 dataOut(end-paddLength+1-pilotLength:end) = []; % Delete padding
 
@@ -58,7 +58,7 @@ if nargin>7
 else
     plotvar = 'noPlot';
 end
-
+Dk_absSum = Dk_block_abs(:);
 switch plotvar
     case 'plot'
         figure
