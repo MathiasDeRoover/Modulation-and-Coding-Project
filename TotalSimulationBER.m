@@ -71,7 +71,7 @@ for i=1:length(SNRdB)
     stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 
     %% Truncate & Sample + Sample clock offset and time shift
-    stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T/2,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
+    stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
 
     %% Gardner
     [stream_rec_gardner, epsilon]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
