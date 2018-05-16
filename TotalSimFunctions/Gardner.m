@@ -23,18 +23,18 @@ T_est       = zeros(N,1);
 
 
 for n = 1:N-1
-    timeSample1     = (n-1  - epsOld )*periodToSample + timeShift;
-    timeHalfSample  = (n-1/2  - eps )*periodToSample + timeShift;
-    timeSample2     = (n  - eps)*periodToSample + timeShift;
+    timeSample1     = (n-1  - epsOld )*(periodToSample*(1+SCO)) + timeShift;
+    timeHalfSample  = (n-1/2  - eps )*(periodToSample*(1+SCO)) + timeShift;
+    timeSample2     = (n  - eps )*(periodToSample*(1+SCO)) + timeShift;
    
-%     sampleTimes             = [timeSample1,timeHalfSample,timeSample2];
-%     samples                 = interp1(windTime,windStream,sampleTimes);
-%     sample1                 = samples(1);
-%     halfSample              = samples(2);
-%     sample2                 = samples(3);
-    sample1         = interp1(windTime,windStream,timeSample1);
-    halfSample      = interp1(windTime,windStream,timeHalfSample);
-    sample2         = interp1(windTime,windStream,timeSample2);
+    sampleTimes             = [timeSample1,timeHalfSample,timeSample2];
+    samples                 = interp1(windTime,windStream,sampleTimes);
+    sample1                 = samples(1);
+    halfSample              = samples(2);
+    sample2                 = samples(3);
+%     sample1         = interp1(windTime,windStream,timeSample1);
+%     halfSample      = interp1(windTime,windStream,timeHalfSample);
+%     sample2         = interp1(windTime,windStream,timeSample2);
     
     sample1(isnan(sample1)) = 0;
     halfSample(isnan(halfSample)) = 0;

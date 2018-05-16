@@ -5,7 +5,7 @@ addpath(genpath(pwd))
 %% INITIALIZATION %%
 modu = 'QPSK';
 [modulation,bps]    = ModuToModulation(modu);
-ftaps               = 200;               % Amount of causal (and non causal) filter taps
+ftaps               = 800;               % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T                   = 1/symRate;        % Symbol period
 M                   = 100;               % UpSample factor
@@ -15,16 +15,18 @@ N                   = 1280;              % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
-% deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
+deltaW              = 0;                % Carrier frequency offset CFO 10ppm 10e-6
 phi0                = 0;                % Phase offset
 delta               = 0;                % Sample clock offset SCO
 % t0                  = 0.4*T;                % Time shift
 t0 = 0;% Check influence without time shift
 K                   = 0.01;              % K for Gardner
+fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 
 SNRdB               = -10:0.1:10;             % Signal to noise in dB
 % SNRdB = 200;
-deltaW = [0 2e-6 10e-6];
+ppm = [0 2e-6 10e-6];
+deltaW =ppm.*fc;
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
 
@@ -130,9 +132,8 @@ for j = 1:length(deltaW)
 semilogy(SNRdB,BER)
 hold on
 title('BER')
-
-
 end
+legend('CFO = 0','CFO  = 2ppm','CFO = 10ppm')
 figure
 stem(stream_rec_decoded~=stream_bit);
 ylim([-1.1,1.1])
