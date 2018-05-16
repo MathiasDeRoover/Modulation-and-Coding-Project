@@ -1,66 +1,114 @@
-function [dataOut] = dePilotAndDePadd(dataIn,paddLength,pilotLength,dataLength,pilot,K,T,varargin)
+function [dataOut,deltaf,n_est] = dePilotAndDePadd(dataIn,paddLength,pilotLength,dataLength,pilot,K,T,varargin)
 %DEPILOTANDDEPADD Depilot and depadd
 %   Depilot, depadd, frame and frequency aquisistion
 dataIn = dataIn(:);
 pilot = pilot(:);
 T = T(:);
 
+% ////////////////////////////
+%   Find Dk(n) for all k and n
+% ////////////////////////////
 dataLen = numel(dataIn);
 N   = numel(pilot);
-K_vec   = (1:K)';
+K_vec   = (1:K).';
 Dk  = zeros(numel(K_vec),dataLen);
-% for ki = 1:numel(K_vec)
-%     k        = K_vec(ki);
-%     n        = k+1:dataLen-N;
-%     l        = (k+1:N)';
-%     Dk(ki,n) = 1/(N-k).*sum((conj(dataIn(n+l-1)).*repmat(pilot(l),1,size(n,2))).*conj(conj(dataIn(n+l-1-k)).*repmat(pilot(l-k),1,size(n,2))),1);
-% end
 for ki = 1:numel(K_vec)
-    k        = K_vec(ki);
-    n        = k:dataLen-N+1;
-    l        = (k:N-1)';
-    Dk(ki,n) = 1/(N-k).*sum( (conj(dataIn(n+l)).*pilot(l+1)) .* conj(conj(dataIn(n+l-k)).*pilot(l-k+1)),1);
+    k          = K_vec(ki);
+    n          = 0:dataLen-N;
+    l          = (k:N-1).';
+    Dk(ki,n+1) = 1/(N-k).*sum( (conj(dataIn(n+l+1)).*pilot(l+1)) .* conj(conj(dataIn(n+l-k+1)).*pilot(l-k+1)),1);
 end
 
+% ////////////////////////////
+%   Find the pilots in dataIn
+% ////////////////////////////
+Dk_abs          = sum(abs(Dk),1);
+Dk_block_abs    = reshape(Dk_abs,pilotLength+dataLength,[]);
 
-Dk_absSum = sum(abs(Dk));
+[~,block_n_est] = max(Dk_block_abs);
+n_est = block_n_est + (0:numel(block_n_est)-1)*(pilotLength+dataLength);
 
-[~,n_est] = max(Dk_absSum);
-delta_f   = -1/K * sum(  angle(Dk(K_vec,n_est)) ./ (2*pi*K_vec*T(n_est)) );
+% ////////////////////////////
+%   Estimate delta f using Dk
+% ////////////////////////////
+Dk_angle    = sum(angle(Dk)./K_vec,1);
+deltaf      = median(-1./(2*K*pi*T(n_est).') .* Dk_angle(n_est));
 
-time_vec  = cumsum(T);
-time_vec  = [0;time_vec(1:end-1)];
+% ////////////////////////////
+%   Comansate the found delta f
+% ////////////////////////////
+time_vec = cumsum(T);
+time_block_vec = reshape(time_vec,pilotLength+dataLength,[]);
+dataIn_block = reshape(dataIn,pilotLength+dataLength,[]);
+dataOut_block = dataIn_block .* exp(-1i*2*pi*deltaf*time_block_vec);
+dataOut = dataOut_block(:);
 
-dataOut = dataIn .* exp( -1i * 2*pi*delta_f*time_vec );
-%dataOut = dataIn .* exp( -1i * 4000*time_vec );
-
-% [~,n_est] = findpeaks([0,Dk_absSum],'MinPeakHeight',0.3,'MinPeakProminence',(max(Dk_absSum)-mean(Dk_absSum))*3/4);
-% n_est = n_est-1;
-
-n_est = [ fliplr(n_est:-(pilotLength+dataLength):1), (n_est+pilotLength+dataLength:pilotLength+dataLength:dataLen) ]
-
-% 
-% delta_f = -1/K .* sum( angle(Dk(K_vec,n_est)) ./ (2*pi*K_vec*T(n_est)'));
-% delta_f = interp1(n_est,delta_f,1:numel(dataIn),'linear',0)';
-% dataOut = dataIn .* exp( -1i*2*pi* delta_f );
-%
+% ////////////////////////////
+%   linear interpolate pilot phase
+% ////////////////////////////
 dataOut = [dataOut;zeros(pilotLength,1)];
 
-% angle_pilots = mean(wrapTo2Pi(angle(dataOut(n_est+(0:numel(pilot)-1)'))) - wrapTo2Pi(angle(pilot)));
-% angle_data   = interp1(n_est,angle_pilots,1:numel(dataOut),'linear',0)';
-% dataOut      = dataOut .* exp(-1i*angle_data);
+tmp_n = n_est.'+(0:numel(pilot)-1);
+tmp = [pilot.';dataOut(tmp_n)];
+tmp1 = unwrap((angle(tmp)));
+tmp_diff = diff(tmp1);
+tmp_ang = cumsum(tmp_diff);
+rest_angle = tmp_ang(:);
 
-dataOut(n_est'+(0:numel(pilot)-1)) = [];        % Delete pilots
+phas = interp1(tmp_n(:),rest_angle(:),1:numel(dataOut),'linear',0);
+
+dataOutTmp = dataOut;
+dataOut = dataOut .* exp(-1i*phas.');
+
+% ////////////////////////////
+%   delete extra data
+% ////////////////////////////
+
+scatter_1 = [pilot.';dataOut(n_est.'+(0:numel(pilot)-1))];
+scatter_2 = [pilot.';dataOutTmp(n_est.'+(0:numel(pilot)-1))];
+
+dataOut(n_est.'+(0:numel(pilot)-1)) = [];        % Delete pilots
 dataOut(end-paddLength+1-pilotLength:end) = []; % Delete padding
 
+% ////////////////////////////
+%   graph plots if specified
+% ////////////////////////////
 if nargin>7
     plotvar = char(varargin{1});
 else
     plotvar = 'noPlot';
 end
-
+Dk_absSum = Dk_block_abs(:);
 switch plotvar
     case 'plot'
+        figure
+        for i = 2:size(scatter_2,1)
+            subplot(2,2,1)
+            hold on
+            scatter(real(scatter_2(i,:)),imag(scatter_2(i,:)));
+            hold off
+            subplot(2,2,2)
+            hold on
+            scatter(real(scatter_1(i,:)),imag(scatter_1(i,:)));
+            hold off
+        end
+        subplot(2,2,1)
+        hold on
+        scatter(real(scatter_2(1,:)),imag(scatter_2(1,:)),'filled');
+        hold off
+        subplot(2,2,2)
+        hold on
+        scatter(real(scatter_1(1,:)),imag(scatter_1(1,:)),'filled');
+        hold off
+        legend(num2str((1:size(scatter_1,1)).'))
+        subplot(2,1,2)
+        hold on
+        plot(phas);
+        tmp = zeros(1,numel(phas));
+        tmp(n_est) = phas(n_est);
+        stem(tmp);
+        hold off
+        
         figure
         hold on
         plot(Dk_absSum)
