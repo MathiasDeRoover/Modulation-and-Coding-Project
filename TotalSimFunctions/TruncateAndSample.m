@@ -4,6 +4,7 @@ function [outStream] = TruncateAndSample(inStream,ftaps,periodToSample,streamFre
 % understand the code. These can be removed in the final version.
 %   Throw away 2*ftaps samples on both sides of signal and sample it at
 %   sample frequency 1/periodToSample.
+% truncStream = inStream; %TEST
 truncStream    = inStream(2*ftaps+1:end);                           % Last points are not removed to prevent interpolation errors. 
 tend            = (numel(inStream)-1-4*ftaps)/streamFrequency;
 % tend            = (numel(truncStream)-1-2*ftaps)/streamFrequency; % Last sample at 2*ftaps before end in case of truncStream
@@ -14,5 +15,7 @@ tq            = (0:periodToSample:tend) *(1 + SCO) + timeShift; % Analoog
 % figure
 % stem((0:periodToSample:tend) - ((1:(tend/periodToSample)+1)-1)*(periodToSample)>1e-3) % This gives strange results (probably numeric rounding errors)
 outStream       = interp1(t2,truncStream,tq)';
+
+%interp1:truncStream=F(t2)-> find outstream=F(tq)
 end
 

@@ -4,6 +4,7 @@ function [H] = RRCFilter( T,fs,beta,ftaps )
 %   the same length as the upsampled symbolstream frequencySpectrum. Needs
 %   the symbol period, sample frequency, roll off factor and amount of
 %   causal filter taps.
+
 x1 = (1-beta)/(2*T);
 x2 = (1+beta)/(2*T);
 f = linspace(-fs/2,fs/2,2*ftaps+1);
