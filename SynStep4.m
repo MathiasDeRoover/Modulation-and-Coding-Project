@@ -69,7 +69,7 @@ for j = 1:numel(changeVar_vec)
         stream_wind         = conv(stream_upSampled,g);
         
         smallResult = zeros(1,100);
-        for q = 1:100
+        for q = 1:40
             
             %% Sending through channel
             noisePower          = CalcNoisePower(stream_bit,1/fs,SNRdB,fs); %%%!!!!!!!!!!!!!!!
@@ -92,7 +92,8 @@ for j = 1:numel(changeVar_vec)
             n_actual = dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots);
             [stream_rec_toa,deltaf,n_est] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est);
             
-            smallResult(q) = (deltaW-deltaf)/(fc*ppm);
+            %smallResult(q) = (deltaW-deltaf)/(fc*ppm);
+            smallResult(q) = std(n_actual-n_est);
         end
         
         result(j,i) = std(smallResult);
@@ -107,7 +108,8 @@ for j = 1:numel(changeVar_vec)
 end
 plot(SNR_vec,result);   
 xlabel('Eb/N0 [dB]')
-ylabel('Frequency error stdev [ppm]')
+%ylabel('Frequency error stdev [ppm]')
+ylabel('Time error stdev [sampe]')
 title('Random QPSK pilot symbols, no CFO, no time shift')
 xlim([0,16]);
 
