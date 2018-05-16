@@ -9,11 +9,8 @@ truncStream    = inStream(2*ftaps+1:end);                           % Last point
 tend            = (numel(inStream)-1-4*ftaps)/streamFrequency;
 % tend            = (numel(truncStream)-1-2*ftaps)/streamFrequency; % Last sample at 2*ftaps before end in case of truncStream
 t2              = ((1:numel(truncStream))-1)/streamFrequency;
-% tq              = ((1:(tend/periodToSample)+1)-1)*(periodToSample * (1 + SCO)) + timeShift;
-tq            = (0:periodToSample:tend) *(1 + SCO) + timeShift; % Analoog
-% tq3 = timeShift:periodToSample:tend *(1+SCO);
-% figure
-% stem((0:periodToSample:tend) - ((1:(tend/periodToSample)+1)-1)*(periodToSample)>1e-3) % This gives strange results (probably numeric rounding errors)
+tq              = ((1:(tend/periodToSample)+1)-1)*(periodToSample * (1 + SCO)) + timeShift;
+% tq            = (0:periodToSample:tend) *(1 + SCO) + timeShift; % Analoog
 outStream       = interp1(t2,truncStream,tq)';
 
 %interp1:truncStream=F(t2)-> find outstream=F(tq)
