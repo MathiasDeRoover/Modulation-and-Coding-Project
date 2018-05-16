@@ -3,7 +3,7 @@ close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
-modu = 'QPSK';
+modu = 'BPSK';
 [modulation,bps]    = ModuToModulation(modu);
 ftaps               = 800;               % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
@@ -11,7 +11,7 @@ T                   = 1/symRate;        % Symbol period
 M                   = 100;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 1280;              % Amount of bits in original stream
+N                   = 128*6*10;              % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
@@ -22,10 +22,14 @@ delta               = 0;                % Sample clock offset SCO
 t0 = 0;% Check influence without time shift
 K                   = 0.01;              % K for Gardner
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
+pilotLength         = 20; 
+dataBlockLength     = 500;
+K_toa               = 10;
 
 SNRdB               = -10:0.1:10;             % Signal to noise in dB
 % SNRdB = 200;
 ppm = [0 2e-6 10e-6];
+ppm = 0;
 deltaW =ppm.*fc;
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -39,8 +43,11 @@ H0                  = CreateHMatrix(cLength,vLength);
 %% Mapping
 stream_mapped       = mapping(stream_coded, bps, modulation);
 
+%% Add pilot symbols
+[stream_mapped_pilots,paddLength,pilot] = PilotAndPadd(stream_mapped,dataBlockLength,pilotLength,modu);
+
 %% Upsample
-stream_upSampled    = upsample(stream_mapped,M);
+stream_upSampled    = upsample(stream_mapped_pilots,M);
 
 %% Create window
 [g,g_min]           = CreateWindow(T, fs, ftaps, beta);
@@ -78,10 +85,11 @@ for j = 1:length(deltaW)
         stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 
         %% Truncate & Sample + Sample clock offset and time shift
-        stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
-
+%         stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
+        stream_rec_wind = stream_rec_wind(2*ftaps+1:end-2*ftaps); %No Garnder
+        stream_rec_sample   = stream_rec_wind(1:M:end);
         %% Gardner
-%         [stream_rec_gardner, epsilon]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
+%         [stream_rec_gardner,T_est, epsilon]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
     %     stream_rec_gardner = stream_rec_sample(1:2:end);
 
         %% Plots
@@ -116,11 +124,14 @@ for j = 1:length(deltaW)
     %     plot(symbolDifference)
     %     title('Symbol error after Gardner')
 
+        %% Compensate only phase, keep ISI
+        T_est = (0:numel(stream_mapped_pilots)-1)*T;
+        [stream_rec_toa,~,~] = removePhase(stream_rec_sample,paddLength,pilotLength,dataBlockLength,pilot,K,T_est,'plot');
 
 
         %% Demapping
     %     stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
-        demapped_no_gardner = demapping(stream_rec_sample, bps, modulation);
+        demapped_no_gardner = demapping(stream_rec_toa, bps, modulation);
 
         %% LDPC decoding
     %     stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIter);
