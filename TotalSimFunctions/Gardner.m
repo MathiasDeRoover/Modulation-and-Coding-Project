@@ -12,16 +12,6 @@ eps     = 0;
 outStream   = zeros(N,1);
 T_est       = zeros(N,1);
 
-% figure
-% stem(windTime,real(windStream))
-% hold on
-% % plot lines at -1 and 1
-% plot(windTime,ones(size(windTime)),'--')
-% plot(windTime,-ones(size(windTime)),'--')
-% hold off
-
-
-
 for n = 1:N-1
     timeSample1     = (n-1  - epsOld )*(periodToSample*(1+SCO)) + timeShift;
     timeHalfSample  = (n-1/2  - eps )*(periodToSample*(1+SCO)) + timeShift;

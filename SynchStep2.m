@@ -26,7 +26,7 @@ t0                  = 0;                % Time shift
 K_gard              = 0;             % K for Gardner
 
 
-t0 = [0 0.1 0.2 0.3 0.4 0.5]*T;
+t0 = [0 0.1 0.2 0.3 0.4]*T;
 
 SNRdB               = -10:0.5:20;
 
@@ -100,7 +100,7 @@ end
 title('BER in function of time shift (BPSK)')
 xlabel('SNR (dB)')
 ylabel('BER')
-legend('t0 = 0','t0 = 0.1*T','t0 = 0.2*T','t0 = 0.3*T','t0 = 0.4*T','t0 = 0.5*T')
+legend('t0 = 0','t0 = 0.1*T','t0 = 0.2*T','t0 = 0.3*T','t0 = 0.4*T')
 
 % figure
 % stem(stream_rec_decoded~=stream_bit)
