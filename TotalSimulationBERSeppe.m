@@ -26,10 +26,10 @@ pilotLength         = 20;
 dataBlockLength     = 500;
 K_toa               = 10;
 
-SNRdB               = -10:0.1:10;             % Signal to noise in dB
+SNRdB               = 0:10;             % Signal to noise in dB
 % SNRdB = 200;
 ppm = [0 2e-6 10e-6];
-ppm = 0;
+% ppm = 0;
 deltaW =ppm.*fc;
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -126,8 +126,8 @@ for j = 1:length(deltaW)
 
         %% Compensate only phase, keep ISI
         T_est = (0:numel(stream_mapped_pilots)-1)*T;
-        [stream_rec_toa,~,~] = removePhase(stream_rec_sample,paddLength,pilotLength,dataBlockLength,pilot,K,T_est,'plot');
-
+        [stream_rec_toa,~,~] = removePhase(stream_rec_sample,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
+     
 
         %% Demapping
     %     stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
