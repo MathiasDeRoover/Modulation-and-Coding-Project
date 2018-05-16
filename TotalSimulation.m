@@ -11,13 +11,13 @@ T                   = 1/symRate;        % Symbol period
 M                   = 10;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 128*6*4;          % Amount of bits in original stream
+N                   = 128*6*10;          % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
 SNRdB               = 20;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
-ppm                 = 2e-6;             % 2 parts per million
+ppm                 = 20e-6;             % 2 parts per million
 deltaW              = fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
 delta               = 0;                % Sample clock offset SCO 0.01
@@ -68,8 +68,7 @@ stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % 
 [stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
 %% Pilot ToA estimation
-dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)
-[stream_rec_toa,~] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
+[stream_rec_toa,~,~] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
 
 %% Demapping
 stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);

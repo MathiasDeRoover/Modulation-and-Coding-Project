@@ -3,6 +3,5 @@ function [outStream] = AddCFOAndPhase(inStream,streamFrequency,CFO,phaseOffset)
 %   Add CFO and phase offset
 t = ((1:numel(inStream))-1)/streamFrequency;
 outStream = inStream .* exp( 1i * (2*pi*CFO*t' + phaseOffset) );
-tmp = 2*pi*CFO
 end
 
