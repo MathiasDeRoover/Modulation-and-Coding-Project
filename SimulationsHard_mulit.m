@@ -21,7 +21,7 @@ N           = 768*20;   % Number of symbols
 bps         = 1;    % Bits per symbol
 
 wait_bar = waitbar(0,'Simulating');
-itlim = [1 2 5 7 9 10];
+itlim = [1 2 5 7 10 20 50];
 % itlim = [1 10 50 100];
 for j = 1:numel(itlim)
     for i=1:length(SNR)
