@@ -1,5 +1,5 @@
 clear
-% close all
+close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
@@ -8,24 +8,24 @@ modu = 'QPSK';
 ftaps               = 200;               % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T                   = 1/symRate;        % Symbol period
-M                   = 10;               % UpSample factor
+M                   = 100;               % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
-N                   = 128*6*10;          % Amount of bits in original stream
+N                   = 128*6;          % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
 SNRdB               = 20;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 1e-6;             % 2 parts per million
-deltaW              = 400*fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
+deltaW              = 0*fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
-delta               = 0;                % Sample clock offset SCO 0.01
+delta               = 0;                % Sample clock offset SCO
 t0                  = 0;                % Time shift
-K                   = 0.06;             % K for Gardner
-pilotLength         = 40; 
+K                   = 0.05;             % K for Gardner
+pilotLength         = 20; 
 dataBlockLength     = 500;
-K_toa               = 10;
+K_toa               = 8;
 
 %% Create bitstream
 [stream_bit]        = CreateBitStream(N,1);
@@ -59,16 +59,11 @@ stream_channel      = Channel(stream_wind,noisePower);
 stream_rec_CFOPhase = AddCFOAndPhase(stream_channel,fs,deltaW,phi0);
 
 %% Apply window
-
 stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
-taxis = (0:numel(stream_rec_wind)-1)*1/fs;
-stream_rec_wind = stream_rec_wind .* exp(-1i*2*pi*deltaW*taxis.');      %% Influence of only ISI
 
-% For only phase drift: add cfo after 2nd window
 %% Truncate & Sample + Sample clock offset and time shift
-stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
-figure
-scatter(real(stream_rec_sample),imag(stream_rec_sample))
+stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0);
+
 %% Gardner
 [stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
@@ -82,30 +77,8 @@ stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);
 stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIter);
 
 %% Results
-
-hold on
-tmp = zeros(size(stream_mapped_pilots));
-tmp(dataBlockLength+1:dataBlockLength+pilotLength:numel(stream_mapped_pilots)) = 1;
-stem(tmp)
-stem(linspace(1,numel(tmp),numel(stream_coded)),-(stream_rec_demapped~=stream_coded));
-hold off
-%ylim([-1.1,1.1])
-%title('Errors after demapping and decoding')
-
 figure
-hold on
-scatter(real(stream_rec_sample),imag(stream_rec_sample));
-scatter(real(stream_rec_gardner),imag(stream_rec_gardner));
-title('Gardner')
-legend('wrong sampling','after Gardner')
-hold off
-
-figure
-hold on
-scatter(real(stream_rec_gardner),imag(stream_rec_gardner));
-scatter(real(stream_rec_toa),imag(stream_rec_toa));
-title('Pilots');
-legend('after Gardner','after ToA')
-hold off
+stem(stream_bit~=stream_rec_decoded)
+title('Figure of symbol errors at receiver')
 
 rmpath(genpath(pwd))
