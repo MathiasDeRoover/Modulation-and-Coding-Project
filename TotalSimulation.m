@@ -1,5 +1,5 @@
 clear
-close all
+% close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
@@ -17,8 +17,8 @@ cLength             = 128;
 vLength             = 256;
 SNRdB               = 20;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
-ppm                 = 20e-6;             % 2 parts per million
-deltaW              = fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
+ppm                 = 1e-6;             % 2 parts per million
+deltaW              = 400*fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
 delta               = 0;                % Sample clock offset SCO 0.01
 t0                  = 0;                % Time shift
@@ -40,8 +40,8 @@ H0                  = CreateHMatrix(cLength,vLength);
 stream_mapped       = mapping(stream_coded, bps, modulation);
 
 %% Add pilot symbols
-[stream_mapped_pilots,paddLength,pilot] = PilotAndPadd(stream_mapped,dataBlockLength,pilotLength,modu);
-
+%[stream_mapped_pilots,paddLength,pilot] = PilotAndPadd(stream_mapped,dataBlockLength,pilotLength,modu);
+stream_mapped_pilots=stream_mapped;
 %% Upsample
 stream_upSampled    = upsample(stream_mapped_pilots,M);
 
@@ -52,24 +52,29 @@ stream_upSampled    = upsample(stream_mapped_pilots,M);
 stream_wind         = conv(stream_upSampled,g);
 
 %% Sending through channel
-noisePower          = CalcNoisePower(stream_bit,1/fs,SNRdB,fs); %%%!!!!!!!!!!!!!!!
+noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB,fs,ftaps); %%%!!!!!!!!!!!!!!!
 stream_channel      = Channel(stream_wind,noisePower);
 
 %% CFO + Phase offset
 stream_rec_CFOPhase = AddCFOAndPhase(stream_channel,fs,deltaW,phi0);
 
 %% Apply window
-stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
 
+stream_rec_wind     = conv(stream_rec_CFOPhase,g_min);
+taxis = (0:numel(stream_rec_wind)-1)*1/fs;
+stream_rec_wind = stream_rec_wind .* exp(-1i*2*pi*deltaW*taxis.');      %% Influence of only ISI
+
+% For only phase drift: add cfo after 2nd window
 %% Truncate & Sample + Sample clock offset and time shift
 stream_rec_sample   = TruncateAndSample(stream_rec_wind,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
-
+figure
+scatter(real(stream_rec_sample),imag(stream_rec_sample))
 %% Gardner
 [stream_rec_gardner, T_est]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 
 %% Pilot ToA estimation
-[stream_rec_toa,~,~] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
-
+%[stream_rec_toa,~,~] = dePilotAndDePadd(stream_rec_gardner,paddLength,pilotLength,dataBlockLength,pilot,K_toa,T_est,'plot');
+stream_rec_toa = stream_rec_gardner;
 %% Demapping
 stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);
 

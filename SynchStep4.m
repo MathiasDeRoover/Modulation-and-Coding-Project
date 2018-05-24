@@ -72,7 +72,7 @@ for j = 1:numel(changeVar_vec)
         for q = 1:40
             
             %% Sending through channel
-            noisePower          = CalcNoisePower(stream_bit,1/fs,SNRdB,fs); %%%!!!!!!!!!!!!!!!
+            noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB,fs,ftaps); %%%!!!!!!!!!!!!!!!
             stream_channel      = Channel(stream_wind,noisePower);
             
             %% CFO + Phase offset
@@ -96,7 +96,7 @@ for j = 1:numel(changeVar_vec)
             smallResult(q) = std(n_actual-n_est);
         end
         
-        result(j,i) = std(smallResult);
+        result(j,i) = mean(smallResult);
         
         % %% Demapping
         % stream_rec_demapped = demapping(stream_rec_toa, bps, modulation);

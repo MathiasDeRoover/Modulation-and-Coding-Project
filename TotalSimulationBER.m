@@ -77,39 +77,6 @@ for i=1:length(SNRdB)
     [stream_rec_gardner, epsilon]  = Gardner(stream_rec_sample, K, stream_rec_wind, ftaps, fs, T,delta, t0);
 %     stream_rec_gardner = stream_rec_sample(1:2:end);
 
-    %% Plots
-    
-    plotBegin = 500;
-    plotEnd   = 550;
-
-%     figure
-%     hold on
-%     t = 0:1/fs:(numel(stream_rec_wind(2*ftaps+1:end))-1)/fs;
-%     stream_rec_wind_plot = real(stream_rec_wind(2*ftaps+1:end));
-% %     plot(t,stream_rec_wind_plot); %full plot
-%     plot(t(plotBegin*M:plotEnd*M),stream_rec_wind_plot(plotBegin*M:plotEnd*M));
-% 
-%     t2 = 0:T/2:(numel(stream_rec_sample)-1)*T/2;
-%     stream_rec_sample_plot = real(stream_rec_sample);
-% %     stem(t2,stream_rec_sample_plot); %full plot
-%     stem(t2(plotBegin*2:plotEnd*2),stream_rec_sample_plot(plotBegin*2:plotEnd*2),'*');
-% 
-%     t3 = 0:T:(numel(stream_rec_gardner)-1)*T;
-%     stream_rec_gardner_plot = real(stream_rec_gardner);
-% %     stem(t3,stream_rec_gardner_plot); %full plot
-%     stem(t3(plotBegin:plotEnd),stream_rec_gardner_plot(plotBegin:plotEnd));
-%     legend('Convolved with matched filter','Sampled at T/2 with time shift and SCO','Reconstructed stream Gardner')
-%     hold off
-
-    % Check symbol error
-    symbolDifference = abs(stream_mapped - stream_rec_gardner);
-%     avg = 1/50*ones(1,50);
-%     symbolDifference = conv(symbolDifference,avg,'same');
-%     figure
-%     plot(symbolDifference)
-%     title('Symbol error after Gardner')
-
-
 
     %% Demapping
     stream_rec_demapped = demapping(stream_rec_gardner, bps, modulation);
@@ -118,18 +85,6 @@ for i=1:length(SNRdB)
     stream_rec_decoded  = LDPC_decoHardVec( stream_rec_demapped, newH ,hardDecodeIter);
     [~, BER(i)] = biterr(stream_rec_decoded,stream_bit);
 end
-%% Results
 
-figure
-semilogy(SNRdB,BER)
-title('BER')
-
-
-
-
-% figure
-% stem(stream_rec_decoded~=stream_bit);
-% ylim([-1.1,1.1])
-% title('Errors after demapping and decoding')
 
 rmpath(genpath(pwd))

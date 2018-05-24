@@ -15,7 +15,7 @@ N                   = 128*12;            % Amount of bits in original stream
 hardDecodeIter      = 10;               % Iteration limit for hard decoder
 cLength             = 128;
 vLength             = 256;
-SNRdB               = 200;              % Signal to noise in dB
+SNRdB               = 4;              % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 2e-6;             % 2 parts per million
 % deltaW              = fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6
@@ -23,14 +23,14 @@ deltaW              = 0;
 phi0                = 0;                % Phase offset
 delta               = 0;                % Sample clock offset SCO
 t0                  = 0.5*T;                % Time shift
-K_gard              = 0.01;             % K for Gardner
+K_gard              = 0.005;             % K for Gardner
 K_gard2              = 0.05;             % K for Gardner
 
 % SNRdB               = -10:0.1:10;
 
 t0 = [0.1 0.2 0.3 0.4]*T;
 
-nrOfIterations = 10;                % To take mean and std
+nrOfIterations = 20;                % To take mean and std
 BER             = zeros(size(SNRdB));
 BER_no_gardner  = zeros(size(SNRdB));
 for tt=1:length(t0)
@@ -88,48 +88,17 @@ end
 steps = 1:20:length(avg(1,:));
 figure
 for i=1:length(t0)
-    plot(avg(i,steps))
+    plot(steps,avg(i,steps))
     hold on
 end
-title('Convergence of algorithm for different time shifts (SNR = 200 dB)')
+title('Convergence of algorithm for different time shifts (SNR = 4 dB)')
 xlabel('Symbols')
 ylabel('Time error')
 legend('t0 = 0.1*T','t0 = 0.2*T','t0 = 0.3*T','t0 = 0.4*T')
 
-
-
-%     avgFilt = 1/9*ones(9,1);
-%     avg     = conv(avg,avgFilt,'same');
-%     stddev  = conv(stddev,avgFilt,'same');
-%     avg2     = conv(avg2,avgFilt,'same');
-%     stddev2  = conv(stddev2,avgFilt,'same');
-    
-%     avg     = avg(5:end);
-%     stddev  = stddev(5:end);   
-%     avg2     = avg2(5:end);
-%     stddev2  = stddev2(5:end);  
-    
-    
-    
-% steps = 1:20:numel(avg);
-% figure
-% plot(steps,avg(steps),'-or')
-% hold on
-% plot(steps,avg2(steps),'-xb')
-% 
-% plot(steps,avg(steps)-stddev(steps),'--or')
-% plot(steps,avg(steps)+stddev(steps),'--or')
-% plot(steps,avg2(steps)-stddev2(steps),'--xb')
-% plot(steps,avg2(steps)+stddev2(steps),'--xb')
-% 
-% title('QPSK, 2 Mbps symbol rate, 0.3 roll-off, no noise')
-% xlabel('Symbols')
-% ylabel('Time error (mean \pm stdv)')
-% ylim(1e-7*[-0.5,3])
-% legend(['K = ',num2str(K_gard)],['K = ',num2str(K_gard2)])
-% hold off
-
-
+defaultPos = get(0,'defaultfigureposition');
+fig = gcf;
+set(fig,'Position',defaultPos*2);
 
 
 rmpath(genpath(pwd))
