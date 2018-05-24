@@ -1,14 +1,14 @@
 clear
-% close all
+close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
 modu = '16QAM';
 [modulation,bps]    = ModuToModulation(modu);
-ftaps               = 200;               % Amount of causal (and non causal) filter taps
+ftaps               = 200;              % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T                   = 1/symRate;        % Symbol period
-M                   = 100;               % UpSample factor
+M                   = 100;              % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
 N                   = 128*500;          % Amount of bits in original stream
@@ -18,9 +18,9 @@ vLength             = 256;
 SNRdB               = 20;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 1e-6;             % 2 parts per million
-deltaW              = 2*fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
+deltaW              = 2*fc*ppm;          % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
 phi0                = 0;                % Phase offset
-delta               = 0;                % Sample clock offset SCO 0.01
+delta               = 0;                % Sample clock offset SCO
 t0                  = 0;                % Time shift
 
 deltaW0 = 0;
@@ -58,7 +58,7 @@ BER10 = zeros(size(SNRdB));
 for i=1:length(SNRdB)
     %% Sending through channel
     disp(['SNRdB = ',num2str(SNRdB(i))])
-    noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB(i),fs,ftaps); %%%!!!!!!!!!!!!!!!
+    noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB(i),fs,ftaps);
     stream_channel      = Channel(stream_wind,noisePower);
 
     %% CFO + Phase offset
@@ -76,7 +76,7 @@ for i=1:length(SNRdB)
     
     
     %% Truncate & Sample + Sample clock offset and time shift
-    stream_rec_sample0   = TruncateAndSample(stream_rec_wind_cfo0,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
+    stream_rec_sample0   = TruncateAndSample(stream_rec_wind_cfo0,ftaps,T,fs,delta,t0); 
     stream_rec_sample2   = TruncateAndSample(stream_rec_wind_cfo2,ftaps,T,fs,delta,t0);
     stream_rec_sample10   = TruncateAndSample(stream_rec_wind_cfo10,ftaps,T,fs,delta,t0);
     

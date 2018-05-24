@@ -1,14 +1,14 @@
 clear
-% close all
+close all
 clc
 addpath(genpath(pwd))
 %% INITIALIZATION %%
 modu = '16QAM';
 [modulation,bps]    = ModuToModulation(modu);
-ftaps               = 200;               % Amount of causal (and non causal) filter taps
+ftaps               = 200;              % Amount of causal (and non causal) filter taps
 symRate             = 2*1e6;            % 2 * cutoffFrequency = 1/T (We use the -3dB point as cutoffFrequency)
 T                   = 1/symRate;        % Symbol period
-M                   = 100;               % UpSample factor
+M                   = 100;              % UpSample factor
 fs                  = symRate * M;      % Sample Frequency
 beta                = 0.3;              % Roll off factor
 N                   = 128*500;          % Amount of bits in original stream
@@ -18,18 +18,17 @@ vLength             = 256;
 SNRdB               = 20;               % Signal to noise in dB
 fc                  = 2e9;              % 2 GHz carrier freq is given as example in the slides
 ppm                 = 1e-6;             % 2 parts per million
-deltaW              = 2*fc*ppm;           % Carrier frequency offset CFO 10ppm 10e-6  fc*ppm
+deltaW              = 2*fc*ppm;         % Carrier frequency offset CFO
 phi0                = 0;                % Phase offset
-delta               = 0;                % Sample clock offset SCO 0.01
+delta               = 0;                % Sample clock offset SCO
 t0                  = 0;                % Time shift
 
 deltaW0 = 0;
 deltaW2 = 2*fc*ppm;
 deltaW10 = 10*fc*ppm;
 
-
-% SNRdB = -10:0.5:10;
-SNRdB = 200;
+SNRdB = -10:0.5:10;
+% SNRdB = 200;
 
 
 %% Create bitstream
@@ -52,13 +51,15 @@ stream_upSampled    = upsample(stream_mapped,M);
 
 %% Apply window
 stream_wind         = conv(stream_upSampled,g);
+
 BER0 = zeros(size(SNRdB));
 BER2 = zeros(size(SNRdB));
 BER10 = zeros(size(SNRdB));
+
 for i=1:length(SNRdB)
     %% Sending through channel
     disp(['SNRdB = ',num2str(SNRdB(i))])
-    noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB(i),fs,ftaps); %%%!!!!!!!!!!!!!!!
+    noisePower          = CalcNoisePower(stream_bit,stream_wind,1/fs,SNRdB(i),fs,ftaps);
     stream_channel      = Channel(stream_wind,noisePower);
 
     %% CFO + Phase offset
@@ -71,14 +72,14 @@ for i=1:length(SNRdB)
     stream_rec_wind0     = conv(stream_rec_CFOPhase0,g_min);
     stream_rec_wind2     = conv(stream_rec_CFOPhase2,g_min);
     stream_rec_wind10     = conv(stream_rec_CFOPhase10,g_min);
+    
     taxis = (0:numel(stream_rec_wind0)-1)*1/fs;
-    stream_rec_wind0 = stream_rec_wind0 .* exp(-1i*2*pi*deltaW0*taxis.');      %% Influence of only ISI
-    stream_rec_wind2 = stream_rec_wind2 .* exp(-1i*2*pi*deltaW2*taxis.');      %% Influence of only ISI
+    stream_rec_wind0 = stream_rec_wind0 .* exp(-1i*2*pi*deltaW0*taxis.');         %% Influence of only ISI
+    stream_rec_wind2 = stream_rec_wind2 .* exp(-1i*2*pi*deltaW2*taxis.');         %% Influence of only ISI
     stream_rec_wind10 = stream_rec_wind10 .* exp(-1i*2*pi*deltaW10*taxis.');      %% Influence of only ISI
 
-    % For only phase drift: add cfo after 2nd window
     %% Truncate & Sample + Sample clock offset and time shift
-    stream_rec_sample0   = TruncateAndSample(stream_rec_wind0,ftaps,T,fs,delta,t0); % Twice as many samples are needed to implement Gardner, so we will sample here at T/2. Alternative: use upsample factor M = 2 and sample here at T.
+    stream_rec_sample0   = TruncateAndSample(stream_rec_wind0,ftaps,T,fs,delta,t0); 
     stream_rec_sample2   = TruncateAndSample(stream_rec_wind2,ftaps,T,fs,delta,t0);
     stream_rec_sample10   = TruncateAndSample(stream_rec_wind10,ftaps,T,fs,delta,t0);
     
@@ -107,7 +108,7 @@ for i=1:length(SNRdB)
 end
 %% Results
 
-% figure
+figure
 semilogy(SNRdB,BER0,'b')
 hold on
 semilogy(SNRdB,BER2,'rx')
